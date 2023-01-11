@@ -1,0 +1,361 @@
+---
+title: "Mendelian Randomization Guide"
+author: "Shea J. Andrews"
+date: "2022-11-12"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd('~/Downloads')
+```
+
+## Mendelian Randomization
+Two-Sample Mendelian Randomization is a method for investigating causal associations between an exposure and outcome using only genome-wide association summary statistics (GWAS-SS). This guide builds off the [TwoSampleMR tutorial](https://mrcieu.github.io/TwoSampleMR/articles/introduction.html) by Gibran Hemani. This guide will examin the causal effect of total cholesterol levels on Alzheimer's disease
+
+### Load R packages 
+```{r packages}
+library(tidyverse)    # Data wrangling 
+library(TwoSampleMR)  # MR 
+library(LDlinkR)      # LD and proxy snps
+library(RadialMR)     # Radial MR sensetivity analysis 
+library(phenoscanner)
+```
+
+### Exposure dataset
+The exposure GWAS-SS have previously been standardized to common format, however, they need to be converted to the format required by TwoSampleMR. 
+
+```{r exposure}
+exposure_path = "~/Dropbox/Research/Data/Summary_Statisitics/Willer2013tc.chrall.CPRA_b37.tsv.gz"
+
+# Define column types for summary statistics
+coltypes = cols(
+  ID = col_character(),
+  CHROM = col_double(),
+  POS = col_double(),
+  REF = col_character(),
+  ALT = col_character(),
+  AF = col_double(),
+  TRAIT = col_character(),
+  BETA = col_double(),
+  SE = col_double(),
+  Z = col_double(),
+  P = col_double(),
+  N = col_double(),
+  OR = col_double(),
+  OR_L95 = col_double(),
+  OR_U95 = col_double(),
+  DIR = col_character(),
+  G1000_ID = col_character(),
+  G1000_VARIANT = col_character(),
+  DBSNP_ID = col_character(),
+  DBSNP_VARIANT = col_character(),
+  OLD_ID = col_character(),
+  OLD_VARIANT = col_character()
+)
+
+exposure_ss <- read_tsv(exposure_path, comment = "##", col_types = coltypes)
+
+# Format data to TwoSampleMR format
+exposure <- exposure_ss %>%
+  format_data(.,
+    type = "exposure",
+    snps = NULL,
+    header = TRUE,
+    phenotype_col = "Phenotype",
+    snp_col = "DBSNP_ID",
+    beta_col = "BETA",
+    se_col = "SE",
+    eaf_col = "AF",
+    effect_allele_col = "ALT",
+    other_allele_col = "REF",
+    pval_col = "P",
+    samplesize_col = "N",
+    z_col = "Z",
+    chr_col = "CHROM",
+    pos_col = "POS",
+    log_pval = FALSE
+) %>%
+  as_tibble()
+
+# Perform LD clumping on SNP data, filter SNPs to make it run faster
+exposure_clump <- exposure %>% 
+  filter(pval.exposure < 0.01) %>%
+  clump_data(.,
+  clump_kb = 10000,
+  clump_r2 = 0.001,
+  clump_p1 = 1,
+  clump_p2 = 1,
+  pop = "EUR"
+)
+
+# Should filter here at GWS, I dont here to demonstrate proxy snps
+# exposure_dat <- filter(exposure_clump, pval.exposure < 5e-8)
+exposure_dat <- exposure_clump
+```
+
+## Outcome datasets
+Similary, the outcome dataset needs to be converted to the TwoSampleMR format and the exposures SNPs or their LD proxies will be extracted.
+```{r outcome}
+outcome_path = "~/Dropbox/Research/Data/Summary_Statisitics/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz"
+outcome_ss <- read_tsv(outcome_path, comment = "##",  col_types = coltypes)
+
+# Format outcome
+outcome <- outcome_ss %>%
+  format_data(.,
+    type = "outcome",
+    snps = NULL,
+    header = TRUE,
+    phenotype_col = "Phenotype",
+    snp_col = "DBSNP_ID",
+    beta_col = "BETA",
+    se_col = "SE",
+    eaf_col = "AF",
+    effect_allele_col = "ALT",
+    other_allele_col = "REF",
+    pval_col = "P",
+    samplesize_col = "N",
+    z_col = "Z",
+    chr_col = "CHROM",
+    pos_col = "POS",
+    log_pval = FALSE
+) %>%
+  as_tibble()
+
+```
+
+
+### LD Proxy SNPs 
+
+```{r proxy}
+# extract exposure SNPs present in outcome
+outcome_clump <- semi_join(
+  outcome, exposure_dat, by = "SNP"
+)
+
+# Exposure SNPs not present in outomce
+exp_snps_wo <- anti_join(
+  exposure_dat, outcome, by = "SNP"
+)
+
+# Use LDLinkR to identify proxy snps
+LDproxy_batch(exp_snps_wo$SNP, 
+        pop = "CEU", 
+        r2d = "r2", 
+        token = 'a6deee62cc4a', 
+        append = TRUE,
+        genome_build = "grch37")
+system("mv combined_query_snp_list_grch37.txt exposure_outcome_proxy_snps.txt")
+
+# Munge proxy snp file
+proxy_snps <- read_tsv("exposure_outcome_proxy_snps.txt", skip = 1, col_names = F) %>%
+  rename(id = X1, func = X2, proxy_snp = X3, coord = X4, alleles = X5, maf = X6, 
+         distance = X7, dprime = X8, rsq = X9, correlated_alleles = X10, FORGEdb = X11, RegulomeDB = X12) %>%
+  separate(coord, c('chr', 'pos'), sep = ":") %>%
+  mutate(snp = ifelse(id == 1, proxy_snp, NA), 
+         chr = str_replace(chr, 'chr', ""), 
+         chr = as.numeric(chr), 
+         pos = as.numeric(pos)) %>%
+  fill(snp, .direction = 'down') %>%
+  relocate(snp, .before = proxy_snp) %>%
+  dplyr::select(-id, -func, -FORGEdb, -RegulomeDB) %>%
+  filter(rsq >= 0.8)
+
+# Munge proxy snp and outcome data
+proxy_outcome <- left_join(
+  proxy_snps, outcome, by = c("proxy_snp" = "SNP")
+) %>%
+  separate(correlated_alleles, c("target_a1.outcome", "proxy_a1.outcome", 
+                                 "target_a2.outcome", "proxy_a2.outcome"), sep = ",|=") %>%
+  filter(!is.na(chr.outcome)) %>%
+  arrange(snp, -rsq, abs(distance)) %>%
+  group_by(snp) %>%
+  slice(1) %>%
+  ungroup() %>%
+  mutate(
+     proxy.outcome = TRUE,
+     target_snp.outcome = snp,
+     proxy_snp.outcome = proxy_snp, 
+  ) %>% 
+  mutate(
+       new_effect_allele.outcome = case_when(
+        proxy_a1.outcome == effect_allele.outcome & proxy_a2.outcome == other_allele.outcome ~ target_a1.outcome,
+        proxy_a2.outcome == effect_allele.outcome & proxy_a1.outcome == other_allele.outcome ~ target_a2.outcome,
+        TRUE ~ NA_character_
+     ), 
+      new_other_allele.outcome = case_when(
+        proxy_a1.outcome == effect_allele.outcome & proxy_a2.outcome == other_allele.outcome ~ target_a2.outcome,
+        proxy_a2.outcome == effect_allele.outcome & proxy_a1.outcome == other_allele.outcome ~ target_a1.outcome,
+        TRUE ~ NA_character_
+     ), 
+     effect_allele.outcome = new_effect_allele.outcome, 
+     other_allele.outcome = new_other_allele.outcome
+  ) %>%
+  dplyr::select(-proxy_snp, -chr, -pos, -alleles, -maf, -distance, -rsq, -dprime,  
+         -new_effect_allele.outcome, -new_other_allele.outcome) %>%
+  relocate(target_a1.outcome, proxy_a1.outcome, target_a2.outcome, proxy_a2.outcome, .after = proxy_snp.outcome) %>%
+  rename(SNP = snp) %>%
+  relocate(SNP, .after = samplesize.outcome)
+
+# Merge outcome and proxy outcomes
+outcome_dat <- bind_rows(
+  outcome_clump, proxy_outcome
+) %>% 
+  arrange(chr.outcome, pos.outcome)
+
+```
+
+## Harmonize Exposure - Outcome Datasets 
+
+```{r harmonize}
+mr_dat <- harmonise_data(exposure_dat, outcome_dat, action = 2) %>% as_tibble() %>%
+  filter(pval.exposure < 5e-8)
+
+```
+
+## Perform MR analysis 
+```{r MR}
+mr_res <- mr(mr_dat, method_list = c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode"))
+
+mr_res
+
+```
+
+
+## Perform Sensentivity analysis
+```{r sensetivity}
+# Heterogeneity statistics 
+mr_heterogeneity(mr_dat, method_list = c("mr_egger_regression", "mr_ivw"))
+
+# Horizontal pleitropy
+mr_pleiotropy_test(mr_dat)
+
+# Leave-one-out analysis 
+res_loo <- mr_leaveoneout(mr_dat, method = mr_ivw_fe) %>% as_tibble()
+
+# Single SNP anlaysis 
+res_single <- mr_singlesnp(mr_dat, all_method = c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode")) %>% as_tibble()
+
+# Radial MR 
+radial_dat <- mr_dat %>% filter(mr_keep == T) %>% dat_to_RadialMR()
+radial_res <- ivw_radial(radial_dat$exposure.outcome, alpha = 0.05/nrow(radial_dat$exposure.outcome)) 
+
+# Phenoscanner 
+phewas_dat <- phenoscanner(snpquery=radial_res$outliers$SNP) 
+```
+
+```{r export_results}
+
+```
+
+## Plots 
+```{r plots}
+scatter_p <- mr_scatter_plot(mr_res, mr_dat)
+scatter_p
+
+loo_p <- mr_leaveoneout_plot(res_loo)
+loo_p
+
+funnel_p <- mr_funnel_plot(res_single)
+funnel_p
+
+radial_p <- plot_radial(radial_res, radial_scale = F, show_outliers = T)
+radial_p
+```
+
+```{r export plots}
+ggsave('mr_scatter.png', plot = scatter_p[[1]], units = 'in', height = 4, width = 9)
+ggsave('mr_loo.png', plot = loo_p[[1]], units = 'in', height = 9, width = 9)
+ggsave('mr_funnel.png', plot = funnel_p[[1]], units = 'in', height = 4, width = 9)
+ggsave('mr_radial.png', plot = radial_p, units = 'in', height = 4, width = 9)
+
+```
+
+## Re-run analysis excluding outliers 
+```{r outliers}
+
+mr_dat_outlier <- mr_dat %>%
+  left_join(radial_res$dat) %>%
+  mutate(
+    apoe_region = case_when(
+      chr.outcome == 19 & between(pos.outcome, 44912079, 45912079) ~ TRUE,
+      TRUE ~ FALSE
+    ), 
+    gws.outcome = ifelse(pval.outcome < 5e-8, TRUE, FALSE), 
+    # mr_keep_new = ifelse(Outliers != "Outlier" | apoe_region != FALSE | gws.outcome != FALSE, TRUE, FALSE)
+     mr_keep = ifelse(mr_keep == FALSE | Outliers == "Outlier" | apoe_region == TRUE | gws.outcome == TRUE, FALSE, TRUE)
+  )
+
+## MR analysis 
+mr_res_outlier <- mr(mr_dat_outlier, method_list = c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode"))
+
+# Heterogeneity statistics 
+mr_heterogeneity(mr_dat_outlier, method_list = c("mr_egger_regression", "mr_ivw"))
+
+# Horizontal pleitropy
+mr_pleiotropy_test(mr_dat_outlier)
+
+# Leave-one-out analysis 
+res_loo_outlier <- mr_leaveoneout(mr_dat_outlier, method = mr_ivw_fe) %>% as_tibble()
+
+# Single SNP anlaysis 
+res_single_outlier <- mr_singlesnp(mr_dat_outlier, 
+                                   all_method = c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode")) %>% 
+  as_tibble()
+
+# Radial MR 
+radial_dat_outlier <- mr_dat_outlier %>% filter(mr_keep == T) %>% dat_to_RadialMR()
+radial_res_outlier <- ivw_radial(radial_dat_outlier$exposure.outcome, alpha = 0.05/nrow(radial_dat_outlier$exposure.outcome)) 
+
+# Plots
+scatter_outlier_p <- mr_scatter_plot(mr_res_outlier, mr_dat_outlier)
+
+loo_outlier_p <- mr_leaveoneout_plot(res_loo_outlier)
+
+funnel_outlier_p <- mr_funnel_plot(res_single_outlier)
+
+radial_outlier_p <- plot_radial(radial_res_outlier, radial_scale = F, show_outliers = T)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
