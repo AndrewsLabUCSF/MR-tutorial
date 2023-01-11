@@ -9,7 +9,7 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-setwd('~/Downloads')
+setwd('~/gitcode/MR-tutorial')
 ```
 
 ## Mendelian Randomization
@@ -28,7 +28,7 @@ library(phenoscanner)
 The exposure GWAS-SS have previously been standardized to common format, however, they need to be converted to the format required by TwoSampleMR. 
 
 ```{r exposure}
-exposure_path = "~/Dropbox/Research/Data/Summary_Statisitics/Willer2013tc.chrall.CPRA_b37.tsv.gz"
+exposure_path = "resources/Willer2013tc.chrall.CPRA_b37.tsv.gz"
 
 # Define column types for summary statistics
 coltypes = cols(
@@ -99,7 +99,7 @@ exposure_dat <- exposure_clump
 ## Outcome datasets
 Similary, the outcome dataset needs to be converted to the TwoSampleMR format and the exposures SNPs or their LD proxies will be extracted.
 ```{r outcome}
-outcome_path = "~/Dropbox/Research/Data/Summary_Statisitics/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz"
+outcome_path = "resources/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz"
 outcome_ss <- read_tsv(outcome_path, comment = "##",  col_types = coltypes)
 
 # Format outcome
@@ -215,6 +215,11 @@ mr_dat <- harmonise_data(exposure_dat, outcome_dat, action = 2) %>% as_tibble() 
 
 ```
 
+```{r export_harmonized_data}
+write_csv(mr_dat, 'data/harmonized_data.csv')
+
+```
+
 ## Perform MR analysis 
 ```{r MR}
 mr_res <- mr(mr_dat, method_list = c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode"))
@@ -247,7 +252,7 @@ phewas_dat <- phenoscanner(snpquery=radial_res$outliers$SNP)
 ```
 
 ```{r export_results}
-write_csv(mr_res, 'mr_results.csv')
+write_csv(mr_res, 'results/mr_results.csv')
 ```
 
 ## Plots 
@@ -266,10 +271,10 @@ radial_p
 ```
 
 ```{r export plots}
-ggsave('mr_scatter.png', plot = scatter_p[[1]], units = 'in', height = 4, width = 9)
-ggsave('mr_loo.png', plot = loo_p[[1]], units = 'in', height = 9, width = 9)
-ggsave('mr_funnel.png', plot = funnel_p[[1]], units = 'in', height = 4, width = 9)
-ggsave('mr_radial.png', plot = radial_p, units = 'in', height = 4, width = 9)
+ggsave('results/plots/mr_scatter.png', plot = scatter_p[[1]], units = 'in', height = 4, width = 9)
+ggsave('results/plots/mr_loo.png', plot = loo_p[[1]], units = 'in', height = 9, width = 9)
+ggsave('results/plots/mr_funnel.png', plot = funnel_p[[1]], units = 'in', height = 4, width = 9)
+ggsave('results/plots/mr_radial.png', plot = radial_p, units = 'in', height = 4, width = 9)
 
 ```
 
@@ -323,11 +328,11 @@ radial_outlier_p <- plot_radial(radial_res_outlier, radial_scale = F, show_outli
 ```
 
 ```{r export_outlier_results}
-write_csv(mr_res_outlier, 'mr_res_outlier.csv')
-ggsave('mr_scatter_outlier.png', plot = scatter_outlier_p[[1]], units = 'in', height = 4, width = 9)
-ggsave('mr_loo_outlier.png', plot = loo_outlier_p[[1]], units = 'in', height = 9, width = 9)
-ggsave('mr_funnel_outlier.png', plot = funnel_outlier_p[[1]], units = 'in', height = 4, width = 9)
-ggsave('mr_radial_outlier.png', plot = radial_outlier_p, units = 'in', height = 4, width = 9)
+write_csv(mr_res_outlier, 'results/mr_res_outlier.csv')
+ggsave('results/plots/mr_scatter_outlier.png', plot = scatter_outlier_p[[1]], units = 'in', height = 4, width = 9)
+ggsave('results/plots/mr_loo_outlier.png', plot = loo_outlier_p[[1]], units = 'in', height = 9, width = 9)
+ggsave('results/plots/mr_funnel_outlier.png', plot = funnel_outlier_p[[1]], units = 'in', height = 4, width = 9)
+ggsave('results/plots/mr_radial_outlier.png', plot = radial_outlier_p, units = 'in', height = 4, width = 9)
 
 
 ```
