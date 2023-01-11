@@ -247,7 +247,7 @@ phewas_dat <- phenoscanner(snpquery=radial_res$outliers$SNP)
 ```
 
 ```{r export_results}
-
+write_csv(mr_res, 'mr_results.csv')
 ```
 
 ## Plots 
@@ -276,6 +276,8 @@ ggsave('mr_radial.png', plot = radial_p, units = 'in', height = 4, width = 9)
 ## Re-run analysis excluding outliers 
 ```{r outliers}
 
+## Modify the mrkeep variable to flag variants in the APOE region, that are GWS f
+## or the outcome, or are outliers from radial MR for removal
 mr_dat_outlier <- mr_dat %>%
   left_join(radial_res$dat) %>%
   mutate(
@@ -320,9 +322,15 @@ radial_outlier_p <- plot_radial(radial_res_outlier, radial_scale = F, show_outli
 
 ```
 
+```{r export_outlier_results}
+write_csv(mr_res_outlier, 'mr_res_outlier.csv')
+ggsave('mr_scatter_outlier.png', plot = scatter_outlier_p[[1]], units = 'in', height = 4, width = 9)
+ggsave('mr_loo_outlier.png', plot = loo_outlier_p[[1]], units = 'in', height = 9, width = 9)
+ggsave('mr_funnel_outlier.png', plot = funnel_outlier_p[[1]], units = 'in', height = 4, width = 9)
+ggsave('mr_radial_outlier.png', plot = radial_outlier_p, units = 'in', height = 4, width = 9)
 
 
-
+```
 
 
 
