@@ -39,3 +39,6 @@ vignettes/*.pdf
 .Renviron
 
 .DS_Store
+
+# Dont track summary stats in resources
+resources/*b37.tsv.gz
