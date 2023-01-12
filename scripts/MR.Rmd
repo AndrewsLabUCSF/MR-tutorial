@@ -327,6 +327,10 @@ radial_outlier_p <- plot_radial(radial_res_outlier, radial_scale = F, show_outli
 
 ```
 
+```{r export_results}
+write_csv(mr_res_outlier, 'results/mr_results_outliers.csv')
+```
+
 ```{r export_outlier_results}
 write_csv(mr_res_outlier, 'results/mr_res_outlier.csv')
 ggsave('results/plots/mr_scatter_outlier.png', plot = scatter_outlier_p[[1]], units = 'in', height = 4, width = 9)
