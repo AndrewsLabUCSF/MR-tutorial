@@ -327,7 +327,7 @@ radial_outlier_p <- plot_radial(radial_res_outlier, radial_scale = F, show_outli
 
 ```
 
-```{r export_results}
+```{r export_results_outliers}
 write_csv(mr_res_outlier, 'results/mr_results_outliers.csv')
 ```
 
