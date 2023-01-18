@@ -1,0 +1,23 @@
+"id.exposure","id.outcome","outcome","exposure","method","nsnp","b","se","pval"
+"zjKjaP","JNBre1","AD","Cholesterol","MR Egger",80,0.19080965148564,0.061339609121161,0.00260689774423451
+"zjKjaP","JNBre1","AD","Cholesterol","Weighted median",80,0.0231043915464894,0.0273304138013941,0.397902662713821
+"zjKjaP","JNBre1","AD","Cholesterol","Inverse variance weighted",80,0.0733431197899312,0.0322108286113141,0.02278796271286
+"zjKjaP","JNBre1","AD","Cholesterol","Simple mode",80,-0.0140850675251398,0.0475052461028787,0.767630178040347
+"zjKjaP","JNBre1","AD","Cholesterol","Weighted mode",80,-0.00967060178182333,0.0299953295750186,0.747998641714914
+"id.exposure","id.outcome","outcome","exposure","method","Q","Q_df","Q_pval","I2"
+"zjKjaP","JNBre1","AD","Cholesterol","MR Egger",312.614873384783,78,7.74576047127775e-30,75.0491717954847
+"zjKjaP","JNBre1","AD","Cholesterol","Inverse variance weighted",332.545862803283,79,7.77915141604371e-33,76.2438782626707
+"id.exposure","id.outcome","outcome","exposure","egger_intercept","se","pval"
+"zjKjaP","JNBre1","AD","Cholesterol",-0.00385152646032979,0.00172713376099812,0.0286219810208612
+*
+"id.exposure","id.outcome","outcome","exposure","method","nsnp","b","se","pval"
+"MXVCl6","cc4y1y","Cholesterol","AD","MR Egger",19,0.361635141238564,0.0260244153082939,1.03485674836687e-10
+"MXVCl6","cc4y1y","Cholesterol","AD","Weighted median",19,0.305478039660887,0.0203970962698442,1.0450985258396e-50
+"MXVCl6","cc4y1y","Cholesterol","AD","Inverse variance weighted",19,0.230317565985245,0.035153763050369,5.68786184684534e-11
+"MXVCl6","cc4y1y","Cholesterol","AD","Simple mode",19,-0.0211530757019228,0.0429725653407632,0.62849533605528
+"MXVCl6","cc4y1y","Cholesterol","AD","Weighted mode",19,0.310890161098517,0.0127294280392314,2.98509472873033e-15
+"id.exposure","id.outcome","outcome","exposure","method","Q","Q_df","Q_pval","I2"
+"MXVCl6","cc4y1y","Cholesterol","AD","MR Egger",62.3443337203484,17,4.2899643379968e-07,72.7320848815946
+"MXVCl6","cc4y1y","Cholesterol","AD","Inverse variance weighted",245.592025725643,18,6.41684404325961e-42,92.6707718026202
+"id.exposure","id.outcome","outcome","exposure","egger_intercept","se","pval"
+"MXVCl6","cc4y1y","Cholesterol","AD",-0.0102448175214883,0.00144930237474382,1.88532080336431e-06

@@ -1,0 +1,135 @@
+---
+title: "LHC-MR"
+author: "Shea J. Andrews"
+date: "2023-01-18"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd('~/gitcode/MR-tutorial')
+
+library(tidyverse)
+library(lhcMR)
+
+# Define column types for summary statistics
+coltypes = cols(
+  ID = col_character(),
+  CHROM = col_double(),
+  POS = col_double(),
+  REF = col_character(),
+  ALT = col_character(),
+  AF = col_double(),
+  TRAIT = col_character(),
+  BETA = col_double(),
+  SE = col_double(),
+  Z = col_double(),
+  P = col_double(),
+  N = col_double(),
+  OR = col_double(),
+  OR_L95 = col_double(),
+  OR_U95 = col_double(),
+  DIR = col_character(),
+  G1000_ID = col_character(),
+  G1000_VARIANT = col_character(),
+  DBSNP_ID = col_character(),
+  DBSNP_VARIANT = col_character(),
+  OLD_ID = col_character(),
+  OLD_VARIANT = col_character()
+)
+
+```
+
+## Step 1: Reading in and merging Data
+```{r ld}
+## File paths needed for the analysis
+LD.filepath = "resources/LDscores_filtered.csv" # LD scores
+rho.filepath = "resources/LD_GM2_2prm.csv" # local/SNP-specfic LD scores
+
+ld = "resources/eur_w_ld_chr/"
+hm3 = "resources/w_hm3.snplist"
+
+```
+
+```{r read_exposure}
+exposure_path = "resources/Willer2013tc.chrall.CPRA_b37.tsv.gz"
+exposure_ss <- read_tsv(exposure_path, comment = "##", col_types = coltypes, 
+                        col_select = c(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N)) %>%
+  rename(SNP = DBSNP_ID)
+
+```
+
+
+```{r read_outcome}
+outcome_path = "resources/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz"
+outcome_ss <- read_tsv(outcome_path, comment = "##",  col_types = coltypes, 
+                        col_select = c(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N))  %>%
+  rename(SNP = DBSNP_ID)
+
+```
+
+```{r merge}
+## Step 1
+trait.names=c("Cholesterol","AD")
+input.files = list(exposure_ss, outcome_ss)
+df = merge_sumstats(input.files, trait.names, LD.filepath, rho.filepath)
+
+```
+
+
+## Step 2: Calculating smart starting points for the likelihood optimisation
+
+```{r read_merge}
+SP_list = calculate_SP(df,trait.names,run_ldsc=TRUE,run_MR=TRUE,hm3=hm3,ld=ld,nStep = 2,
+                       SP_single=3,SP_pair=50,SNP_filter=10)
+
+```
+
+
+## Step 3: Running the likelihood optimisation to estimate the parameters, followed by a block-jackknife procedure to calculate parameter-SE
+
+```{r read_merge}
+
+## Step 3
+res = lhc_mr(SP_list, trait.names, paral_method="lapply", nCores = 1, nBlock=200)
+res %>% as_tibble() %>% write_csv(., "results/lhcmr.csv")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
