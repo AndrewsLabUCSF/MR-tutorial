@@ -307,9 +307,6 @@ mrdat <- harmonise_data(comb_exp, outcome_dat) %>%
   filter(pval.exposure < 5e-8)
 
 mvdat <- mv_harmonise_data(comb_exp, outcome_dat)
-
-save_rds
-
 ```
 
 ```{r export_harmonized_dat}
@@ -348,16 +345,13 @@ radial_res <- map(radial_dat, function(x){
 
 ```{r plots}
 scatter_p <- mr_scatter_plot(mr_res, mrdat)
-scatter_p
 
 funnel_p <- mr_funnel_plot(res_single)
-funnel_p
 
 radial_p <-  map(radial_res, function(x){
      plot_radial(x, radial_scale = F, show_outliers = T)
   }
 )
-radial_p
 
 
 joint_mr_p <- plot_grid(
