@@ -70,6 +70,15 @@ outcome_ss <- read_tsv(outcome_path, comment = "##",  col_types = coltypes,
 
 ```
 
+```{r read_outcome}
+bellenguez_path = "resources/Bellenguez2022load.chrall.CPRA_b37.tsv.gz"
+bellenguez_ss <- read_tsv(bellenguez_path, comment = "##",  col_types = coltypes, 
+                        col_select = c(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N))  %>%
+  rename(SNP = DBSNP_ID) 
+
+```
+
+## Kunkle 2019
 ```{r merge}
 ## Step 1
 trait.names=c("Cholesterol","AD")
@@ -97,6 +106,35 @@ res = lhc_mr(SP_list, trait.names, paral_method="lapply", nCores = 1, nBlock=200
 res %>% as_tibble() %>% write_csv(., "results/lhcmr.csv")
 ```
 
+## Bellenguez 2022
+```{r merge}
+## Step 1
+Chol_ADRD_trait.names=c("Cholesterol","ADRD")
+Chol_ADRD_input.files = list(exposure_ss, bellenguez_ss)
+Chol_ADRD_df = merge_sumstats(Chol_ADRD_input.files, Chol_ADRD_trait.names, LD.filepath, rho.filepath)
+
+```
+
+
+## Step 2: Calculating smart starting points for the likelihood optimisation
+
+```{r read_merge}
+Chol_ADRD_SP_list = calculate_SP(Chol_ADRD_df,Chol_ADRD_trait.names,
+                                 run_ldsc=TRUE,run_MR=TRUE,hm3=hm3,ld=ld,nStep = 2,
+                                 SP_single=3,SP_pair=50,SNP_filter=10)
+
+```
+
+
+## Step 3: Running the likelihood optimisation to estimate the parameters, followed by a block-jackknife procedure to calculate parameter-SE
+
+```{r read_merge}
+
+## Step 3
+Chol_ADRD_res = lhc_mr(Chol_ADRD_SP_list, Chol_ADRD_trait.names, 
+                       paral_method="lapply", nCores = 2, nBlock=200)
+Chol_ADRD_res %>% as_tibble() %>% write_csv(., "results/lhcmr.csv")
+```
 
 
 
