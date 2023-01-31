@@ -9,11 +9,11 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-setwd('~/gitcode/MR-tutorial')
+knitr::opts_knit$set(root.dir = '~/gitcode/MR-tutorial')
 ```
 
 ## Mendelian Randomization
-Two-Sample Mendelian Randomization is a method for investigating causal associations between an exposure and outcome using only genome-wide association summary statistics (GWAS-SS). This guide builds off the [TwoSampleMR tutorial](https://mrcieu.github.io/TwoSampleMR/articles/introduction.html) by Gibran Hemani. This guide will examin the causal effect of total cholesterol levels on Alzheimer's disease
+Two-Sample Mendelian Randomization is a method for investigating causal associations between an exposure and outcome using only genome-wide association summary statistics (GWAS-SS). This guide builds off the [TwoSampleMR tutorial](https://mrcieu.github.io/TwoSampleMR/articles/introduction.html) by Gibran Hemani. This guide will examine the causal effect of total cholesterol levels on Alzheimer's disease
 
 ### Load R packages 
 ```{r packages}
@@ -22,13 +22,6 @@ library(TwoSampleMR)  # MR
 library(LDlinkR)      # LD and proxy snps
 library(RadialMR)     # Radial MR sensetivity analysis 
 library(phenoscanner)
-```
-
-### Exposure dataset
-The exposure GWAS-SS have previously been standardized to common format, however, they need to be converted to the format required by TwoSampleMR. 
-
-```{r exposure}
-exposure_path = "resources/Willer2013tc.chrall.CPRA_b37.tsv.gz"
 
 # Define column types for summary statistics
 coltypes = cols(
@@ -56,101 +49,12 @@ coltypes = cols(
   OLD_VARIANT = col_character()
 )
 
-exposure_ss <- read_tsv(exposure_path, comment = "##", col_types = coltypes)
-
-# Format data to TwoSampleMR format
-exposure <- exposure_ss %>%
-  format_data(.,
-    type = "exposure",
-    snps = NULL,
-    header = TRUE,
-    phenotype_col = "Phenotype",
-    snp_col = "DBSNP_ID",
-    beta_col = "BETA",
-    se_col = "SE",
-    eaf_col = "AF",
-    effect_allele_col = "ALT",
-    other_allele_col = "REF",
-    pval_col = "P",
-    samplesize_col = "N",
-    z_col = "Z",
-    chr_col = "CHROM",
-    pos_col = "POS",
-    log_pval = FALSE
-) %>%
-  as_tibble()
-
-# Perform LD clumping on SNP data, filter SNPs to make it run faster
-exposure_clump <- exposure %>% 
-  filter(pval.exposure < 0.01) %>%
-  clump_data(.,
-  clump_kb = 10000,
-  clump_r2 = 0.001,
-  clump_p1 = 1,
-  clump_p2 = 1,
-  pop = "EUR"
-)
-
-# Should filter here at GWS, I dont here to demonstrate proxy snps
-# exposure_dat <- filter(exposure_clump, pval.exposure < 5e-8)
-exposure_dat <- exposure_clump
 ```
 
-## Outcome datasets
-Similary, the outcome dataset needs to be converted to the TwoSampleMR format and the exposures SNPs or their LD proxies will be extracted.
-```{r outcome}
-outcome_path = "resources/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz"
-outcome_ss <- read_tsv(outcome_path, comment = "##",  col_types = coltypes)
-
-# Format outcome
-outcome <- outcome_ss %>%
-  format_data(.,
-    type = "outcome",
-    snps = NULL,
-    header = TRUE,
-    phenotype_col = "Phenotype",
-    snp_col = "DBSNP_ID",
-    beta_col = "BETA",
-    se_col = "SE",
-    eaf_col = "AF",
-    effect_allele_col = "ALT",
-    other_allele_col = "REF",
-    pval_col = "P",
-    samplesize_col = "N",
-    z_col = "Z",
-    chr_col = "CHROM",
-    pos_col = "POS",
-    log_pval = FALSE
-) %>%
-  as_tibble()
-
-```
-
-
-### LD Proxy SNPs 
-
-```{r proxy}
-# extract exposure SNPs present in outcome
-outcome_clump <- semi_join(
-  outcome, exposure_dat, by = "SNP"
-)
-
-# Exposure SNPs not present in outomce
-exp_snps_wo <- anti_join(
-  exposure_dat, outcome, by = "SNP"
-)
-
-# Use LDLinkR to identify proxy snps
-LDproxy_batch(exp_snps_wo$SNP, 
-        pop = "CEU", 
-        r2d = "r2", 
-        token = 'a6deee62cc4a', 
-        append = TRUE,
-        genome_build = "grch37")
-system("mv combined_query_snp_list_grch37.txt exposure_outcome_proxy_snps.txt")
-
-# Munge proxy snp file
-proxy_snps <- read_tsv("exposure_outcome_proxy_snps.txt", skip = 1, col_names = F) %>%
+```{r get_proxies}
+munge_proxies <- function(LDLink_file, outcome, outcome_clump){
+  LDLink_file_path <- LDLink_file
+  proxy_snps <- read_tsv(LDLink_file_path, skip = 1, col_names = F) %>%
   rename(id = X1, func = X2, proxy_snp = X3, coord = X4, alleles = X5, maf = X6, 
          distance = X7, dprime = X8, rsq = X9, correlated_alleles = X10, FORGEdb = X11, RegulomeDB = X12) %>%
   separate(coord, c('chr', 'pos'), sep = ":") %>%
@@ -205,6 +109,115 @@ outcome_dat <- bind_rows(
 ) %>% 
   arrange(chr.outcome, pos.outcome)
 
+outcome_dat
+}
+
+```
+
+### Exposure dataset
+The exposure GWAS-SS have previously been standardized to common format, however, they need to be converted to the format required by TwoSampleMR. 
+
+```{r exposure}
+exposure_path = "resources/Willer2013tc.chrall.CPRA_b37.tsv.gz"
+exposure_ss <- read_tsv(exposure_path, comment = "##", col_types = coltypes, 
+                        col_select = c(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N, TRAIT))
+
+# Format data to TwoSampleMR format
+exposure <- exposure_ss %>%
+  format_data(.,
+    type = "exposure",
+    snps = NULL,
+    header = TRUE,
+    phenotype_col = "TRAIT",
+    snp_col = "DBSNP_ID",
+    beta_col = "BETA",
+    se_col = "SE",
+    eaf_col = "AF",
+    effect_allele_col = "ALT",
+    other_allele_col = "REF",
+    pval_col = "P",
+    samplesize_col = "N",
+    z_col = "Z",
+    chr_col = "CHROM",
+    pos_col = "POS",
+    log_pval = FALSE
+) %>%
+  as_tibble()
+
+# Perform LD clumping on SNP data, filter SNPs to make it run faster
+exposure_clump <- exposure %>% 
+  filter(pval.exposure < 0.01) %>%
+  clump_data(.,
+  clump_kb = 10000,
+  clump_r2 = 0.001,
+  clump_p1 = 1,
+  clump_p2 = 1,
+  pop = "EUR"
+)
+
+# Should filter here at GWS, I dont here to demonstrate proxy snps
+# exposure_dat <- filter(exposure_clump, pval.exposure < 5e-8)
+exposure_dat <- exposure_clump
+```
+
+## Outcome datasets
+Similary, the outcome dataset needs to be converted to the TwoSampleMR format and the exposures SNPs or their LD proxies will be extracted.
+```{r outcome}
+outcome_path = "resources/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz"
+outcome_ss <- read_tsv(outcome_path, comment = "##",  col_types = coltypes, 
+                       col_select = c(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N, TRAIT))
+
+# Format outcome
+outcome <- outcome_ss %>%
+  format_data(.,
+    type = "outcome",
+    snps = NULL,
+    header = TRUE,
+    phenotype_col = "TRAIT",
+    snp_col = "DBSNP_ID",
+    beta_col = "BETA",
+    se_col = "SE",
+    eaf_col = "AF",
+    effect_allele_col = "ALT",
+    other_allele_col = "REF",
+    pval_col = "P",
+    samplesize_col = "N",
+    z_col = "Z",
+    chr_col = "CHROM",
+    pos_col = "POS",
+    log_pval = FALSE
+) %>%
+  as_tibble()
+
+```
+
+
+### LD Proxy SNPs 
+
+```{r proxy}
+# extract exposure SNPs present in outcome
+outcome_clump <- semi_join(
+  outcome, exposure_dat, by = "SNP"
+)
+
+# Exposure SNPs not present in outomce
+exp_snps_wo <- anti_join(
+  exposure_dat, outcome, by = "SNP"
+)
+
+# Use LDLinkR to identify proxy snps
+LDproxy_batch(exp_snps_wo$SNP, 
+        pop = "CEU", 
+        r2d = "r2", 
+        token = 'a6deee62cc4a', 
+        append = TRUE,
+        genome_build = "grch37")
+system("mv combined_query_snp_list_grch37.txt data/exposure_outcome_proxy_snps.txt")
+
+
+# Munge proxy snp file
+outcome_dat <- munge_proxies("data/exposure_outcome_proxy_snps.txt", outcome, outcome_clump)
+
 ```
 
 ## Harmonize Exposure - Outcome Datasets 
@@ -217,12 +230,17 @@ mr_dat <- harmonise_data(exposure_dat, outcome_dat, action = 2) %>% as_tibble() 
 
 ```{r export_harmonized_data}
 write_csv(mr_dat, 'data/harmonized_data.csv')
-
+# mr_dat <- read_csv('data/harmonized_data.csv')
 ```
 
 ## Perform MR analysis 
 ```{r MR}
-mr_res <- mr(mr_dat, method_list = c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode"))
+mr_res <- mr(mr_dat, method_list = c(
+  "mr_two_sample_ml",  "mr_egger_regression", "mr_egger_regression_bootstrap",
+  "mr_simple_median", "mr_weighted_median", "mr_penalised_weighted_median", 
+  "mr_ivw_fe", "mr_ivw_mre",
+  "mr_simple_mode", "mr_weighted_mode", "mr_weighted_mode_nome", "mr_simple_mode_nome"
+  ))
 
 mr_res
 
@@ -232,10 +250,12 @@ mr_res
 ## Perform Sensentivity analysis
 ```{r sensetivity}
 # Heterogeneity statistics 
-mr_heterogeneity(mr_dat, method_list = c("mr_egger_regression", "mr_ivw"))
+res_het <- mr_heterogeneity(mr_dat, method_list = c("mr_egger_regression", "mr_ivw"))
+res_het
 
 # Horizontal pleitropy
-mr_pleiotropy_test(mr_dat)
+res_pleio <- mr_pleiotropy_test(mr_dat)
+res_pleio
 
 # Leave-one-out analysis 
 res_loo <- mr_leaveoneout(mr_dat, method = mr_ivw_fe) %>% as_tibble()
@@ -245,19 +265,21 @@ res_single <- mr_singlesnp(mr_dat, all_method = c("mr_ivw_fe", "mr_egger_regress
 
 # Radial MR 
 radial_dat <- mr_dat %>% filter(mr_keep == T) %>% dat_to_RadialMR()
-radial_res <- ivw_radial(radial_dat$exposure.outcome, alpha = 0.05/nrow(radial_dat$exposure.outcome)) 
+radial_res <- ivw_radial(radial_dat$TC.AD, alpha = 0.05/nrow(radial_dat$TC.AD)) 
 
 # Phenoscanner 
 phewas_dat <- phenoscanner(snpquery=radial_res$outliers$SNP) 
 ```
 
 ```{r export_results}
+write_csv(res_het, 'results/mr_het_res.csv')
+write_csv(res_pleio, 'results/mr_plt_res.csv')
 write_csv(mr_res, 'results/mr_results.csv')
 ```
 
 ## Plots 
 ```{r plots}
-scatter_p <- mr_scatter_plot(mr_res, mr_dat)
+scatter_p <- mr_scatter_plot(mr_res, mr_dat) 
 scatter_p
 
 loo_p <- mr_leaveoneout_plot(res_loo)
@@ -271,11 +293,70 @@ radial_p
 ```
 
 ```{r export plots}
+## CSV
 ggsave('results/plots/mr_scatter.png', plot = scatter_p[[1]], units = 'in', height = 4, width = 9)
 ggsave('results/plots/mr_loo.png', plot = loo_p[[1]], units = 'in', height = 9, width = 9)
 ggsave('results/plots/mr_funnel.png', plot = funnel_p[[1]], units = 'in', height = 4, width = 9)
 ggsave('results/plots/mr_radial.png', plot = radial_p, units = 'in', height = 4, width = 9)
 
+
+## GT 
+mr_res %>%
+  select(-id.exposure, -id.outcome) %>%
+  gt() %>%
+  fmt_number(
+    columns = c("b", "se")
+  ) %>%
+  fmt_number(
+    columns = pval,
+    rows = pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = pval,
+    rows = pval <= 0.001,
+    decimals = 1
+  ) %>%
+  gtsave(., 'results/tables/mr_res.png')
+
+### Heterogenity
+res_het %>%
+  select(-id.exposure, -id.outcome) %>%
+  gt() %>%
+  fmt_number(
+    columns = Q
+  ) %>%
+  fmt_number(
+    columns = Q_pval,
+    rows = Q_pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = Q_pval,
+    rows = Q_pval <= 0.001,
+    decimals = 1
+  ) %>%
+  gtsave(., 'results/tables/mr_het.png')  
+
+### Pleiotropy
+res_pleio %>%
+  select(-id.exposure, -id.outcome) %>%
+  gt() %>%
+  fmt_number(
+    columns = c('egger_intercept', 'se')
+  ) %>%
+  fmt_number(
+    columns = pval,
+    rows = pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = pval,
+    rows = pval <= 0.001,
+    decimals = 1
+  ) %>%
+  gtsave(., 'results/tables/mr_plt.png')  
+  
 ```
 
 ## Re-run analysis excluding outliers 
