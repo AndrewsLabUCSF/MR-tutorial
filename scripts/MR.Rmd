@@ -285,6 +285,9 @@ scatter_p
 loo_p <- mr_leaveoneout_plot(res_loo)
 loo_p
 
+forrest_p <- mr_forest_plot(res_single)
+forrest_p
+
 funnel_p <- mr_funnel_plot(res_single)
 funnel_p
 
@@ -296,6 +299,7 @@ radial_p
 ## CSV
 ggsave('results/plots/mr_scatter.png', plot = scatter_p[[1]], units = 'in', height = 4, width = 9)
 ggsave('results/plots/mr_loo.png', plot = loo_p[[1]], units = 'in', height = 9, width = 9)
+ggsave('results/plots/mr_forrest.png', plot =forrest_p[[1]] + theme(text = element_text(size = 8)), units = 'in', height = 9, width = 9)
 ggsave('results/plots/mr_funnel.png', plot = funnel_p[[1]], units = 'in', height = 4, width = 9)
 ggsave('results/plots/mr_radial.png', plot = radial_p, units = 'in', height = 4, width = 9)
 
