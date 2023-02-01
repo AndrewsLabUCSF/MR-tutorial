@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="700" height="500">
+<defs>
+<style type="text/css"><![CDATA[
+  .borderLine {
+	   stroke: none;
+	   fill-opacity:  0.2 ;
+  }
+  .outLine {
+	   stroke-width:  1 ;
+	   fill: none;
+  }
+  .circle {
+	   stroke: #888888;
+	   stroke-width: 0.5;
+	   fill: none;
+    pointer-events: all;
+  }
+  .nLabel {
+	   font-family: Arial;
+    pointer-events: none;
+	   font-size: 10px;
+	   text-anchor: middle;
+	   alignment-baseline: central;
+  }
+  .belong {
+	   font-family: Arial;
+    pointer-events: none;
+	   font-size: 5px;
+	   text-anchor: middle;
+	   alignment-baseline: central;
+  }
+  .legend {
+    font-family: Arial;
+    font-size: 15px;
+  }
+  #legendBox {
+    display:  inline ;
+  }
+  .p0{
+    stroke: none;
+    fill: #e6194b;
+  }
+  .q0{
+    fill: none;
+    stroke: #e6194b;
+  }
+  .p1{
+    stroke: none;
+    fill: #3cb44b;
+  }
+  .q1{
+    fill: none;
+    stroke: #3cb44b;
+  }
+]]>
+</style>
+<symbol id="bl0">
+<path d="M 289.64 223.15 L 285.74 230.40 L 281.88 237.77 L 277.71 245.02 L 272.96 251.98 L 267.80 258.73 L 261.72 264.95 L 251.56 267.87 L 241.10 267.23 L 234.27 262.86 L 228.30 257.69 L 222.21 252.67 L 215.85 247.77 L 209.38 242.84 L 202.97 237.56 L 196.73 231.72 L 190.55 225.61 L 184.20 219.67 L 177.55 214.18 L 170.79 209.01 L 164.20 203.98 L 158.03 199.01 L 152.17 193.93 L 146.58 188.36 L 141.31 181.98 L 136.36 175.05 L 131.87 167.77 L 128.10 160.15 L 124.89 152.33 L 122.25 144.39 L 120.40 136.35 L 119.14 128.23 L 118.48 119.98 L 118.61 111.57 L 119.33 103.11 L 120.63 94.80 L 122.70 86.78 L 125.31 79.00 L 128.42 71.47 L 132.17 64.29 L 136.39 57.39 L 141.05 50.77 L 146.30 44.57 L 152.01 38.70 L 158.19 33.19 L 165.02 28.20 L 172.31 23.64 L 179.95 19.61 L 188.01 16.34 L 196.32 13.67 L 204.75 11.64 L 213.24 10.49 L 221.76 10.00 L 230.25 10.15 L 238.68 11.15 L 247.04 12.76 L 255.26 14.97 L 263.26 17.92 L 271.04 21.43 L 278.52 25.45 L 285.53 30.12 L 292.19 35.26 L 298.47 40.85 L 304.24 47.01 L 309.58 53.59 L 314.41 60.54 L 318.50 67.96 L 321.99 75.66 L 324.86 83.47 L 326.88 91.34 L 328.28 99.27 L 329.11 107.34 L 329.24 115.64 L 328.83 124.08 L 327.92 132.61 L 326.35 141.20 L 324.34 149.75 L 322.05 158.10 L 319.44 166.09 L 316.58 173.81 L 313.45 181.31 L 309.93 188.56 L 306.14 195.63 L 302.16 202.58 L 297.99 209.40 L 293.76 216.19 Z" />
+</symbol>
+<symbol id="bl1">
+<path d="M 333.53 469.93 L 326.07 474.67 L 318.32 478.84 L 310.36 482.41 L 302.18 485.17 L 293.88 487.34 L 285.52 488.92 L 277.14 489.75 L 268.75 490.00 L 260.37 489.67 L 252.02 488.58 L 243.70 486.89 L 235.41 484.60 L 227.20 481.51 L 219.11 477.84 L 211.32 473.65 L 204.02 468.79 L 197.12 463.47 L 190.67 457.76 L 184.83 451.58 L 179.46 445.03 L 174.56 438.04 L 170.31 430.46 L 166.54 422.47 L 163.26 414.18 L 160.64 405.55 L 158.57 396.75 L 157.17 387.91 L 156.71 379.11 L 156.96 370.37 L 157.86 361.77 L 159.61 353.37 L 161.97 345.12 L 164.85 336.98 L 168.39 328.97 L 172.39 321.05 L 176.77 313.24 L 181.55 305.55 L 186.48 297.87 L 191.20 290.05 L 195.45 281.95 L 199.49 273.73 L 203.69 265.57 L 208.32 257.58 L 213.35 249.60 L 218.88 241.38 L 225.22 232.97 L 232.37 225.12 L 241.27 220.52 L 250.83 218.75 L 259.68 218.74 L 267.30 221.73 L 274.15 226.61 L 280.70 232.35 L 287.12 238.59 L 293.45 245.00 L 299.65 251.28 L 305.66 257.24 L 311.61 263.00 L 317.69 268.72 L 324.06 274.47 L 330.59 280.34 L 337.16 286.46 L 343.69 292.99 L 350.06 299.80 L 356.03 306.80 L 361.32 314.01 L 366.08 321.41 L 370.31 329.11 L 373.85 337.26 L 376.82 345.70 L 379.14 354.33 L 380.58 363.12 L 381.35 371.98 L 381.52 380.82 L 380.91 389.55 L 379.72 398.17 L 377.93 406.61 L 375.35 414.78 L 372.17 422.75 L 368.43 430.50 L 363.95 437.98 L 358.93 445.20 L 353.39 452.09 L 347.20 458.49 L 340.55 464.47 Z" />
+</symbol>
+</defs>
+<!-- isDone: 0 -->
+<rect width="700" height="500" style="fill:#fff;stroke-width:0" />
+<use class="p0 borderLine" xlink:href="#bl0"/>
+<use class="p1 borderLine" xlink:href="#bl1"/>
+<use class="q0 outLine" xlink:href="#bl0"/>
+<use class="q1 outLine" xlink:href="#bl1"/>
+<circle onclick="fromCircle(2)" class="circle" cx="223.7955" cy="115.0738" r="104.0921" />
+<text class="nLabel" x="223.80" y="110.07">75</text>
+<text class="belong" x="223.80" y="120.07">(1)</text>
+<circle onclick="fromCircle(3)" class="circle" cx="248.9049" cy="243.6242" r="24.0390" />
+<text class="nLabel" x="248.90" y="238.62">4</text>
+<text class="belong" x="248.90" y="248.62">(1, 2)</text>
+<circle onclick="fromCircle(1)" class="circle" cx="269.5990" cy="378.7636" r="110.8145" />
+<text class="nLabel" x="269.60" y="373.76">85</text>
+<text class="belong" x="269.60" y="383.76">(2)</text>
+<g id="legendBox">
+<rect class="p0 borderLine" x="500.00" y="50.00" width="30.00" height="15.00" />
+<rect class="q0" x="500.00" y="50.00" width="30.00" height="15.00" />
+<text class="legend" x="540.00" y="65.00">LDL</text>
+<rect class="p1 borderLine" x="500.00" y="90.00" width="30.00" height="15.00" />
+<rect class="q1" x="500.00" y="90.00" width="30.00" height="15.00" />
+<text class="legend" x="540.00" y="105.00">HDL</text>
+</g>
+</svg>
