@@ -5,6 +5,10 @@ date: "2023-01-26"
 editor_options: 
   chunk_output_type: console
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = '~/gitcode/MR-tutorial')
+```
 
 ## Load R packages 
 ```{r packages}
@@ -244,21 +248,31 @@ mvmr_snps <- bind_rows(
   pull(SNP)
 
 comb_exp <- bind_rows(
-  exposure1 %>% filter(SNP %in% mvmr_snps), 
-  exposure2 %>% filter(SNP %in% mvmr_snps)
+  exposure1 %>% filter(SNP %in% mvmr_snps),
+  exposure2 %>% filter(SNP %in% mvmr_snps),
+)
+
+comb_exp_out <- bind_rows(
+  exposure1 %>% filter(SNP %in% mvmr_snps) %>% 
+    rename(pval = pval.exposure, trait = exposure, chr = chr.exposure, pos = pos.exposure), 
+  exposure2 %>% filter(SNP %in% mvmr_snps) %>% 
+    rename(pval = pval.exposure, trait = exposure, chr = chr.exposure, pos = pos.exposure), 
+  outcome %>% filter(SNP %in% mvmr_snps) %>% 
+    rename(pval = pval.outcome, trait = outcome, chr = chr.outcome, pos = pos.outcome)
 )
 
 ## How many SNPs are GWS across the exposures 
-comb_exp_wide <- comb_exp %>%
-   arrange(chr.exposure, pos.exposure) %>%
-   select(SNP, exposure, pval.exposure) %>%
-   pivot_wider(names_from = exposure, values_from = pval.exposure) %>%
+comb_exp_wide <- comb_exp_out %>%
+   arrange(chr, pos) %>%
+   select(SNP, trait, pval) %>%
+   pivot_wider(names_from = trait, values_from = pval) %>%
    mutate(pval.exposure = pmin(LDL, HDL, na.rm = T))
 
 comb_exp_wide %>% count(LDL < 5e-8, HDL < 5e-8)
+comb_exp_wide %>% count(LDL < 5e-8, HDL < 5e-8, AD < 5e-8)
 
 ## Do another round of LD clumping 
-comb_exp_clump <- comb_exp_wide %>% 
+comb_exp_clump <- comb_exp %>% 
   clump_data(.,
   clump_kb = 10000,
   clump_r2 = 0.001,
@@ -266,6 +280,9 @@ comb_exp_clump <- comb_exp_wide %>%
   clump_p2 = 1,
   pop = "EUR"
 )
+
+comb_exp_clump %>% count(LDL < 5e-8, HDL < 5e-8)
+
 
 comb_exp <- comb_exp %>% filter(SNP %in% comb_exp_clump$SNP) 
 
@@ -296,6 +313,26 @@ system("mv combined_query_snp_list_grch37.txt data/mvmr_proxy_snps.txt")
 
 # Munge proxy snp file
 outcome_dat <- munge_proxies("data/mvmr_proxy_snps.txt", outcome, outcome_clump)
+
+```
+
+```{r VennDiagram}
+library(nVennR)
+## GWS SNPs
+set1 <- list(pull(exposure1_dat, SNP))
+set2 <- list(pull(exposure2_dat, SNP))
+myNV <- plotVenn(list(set1, set2), sNames=c("LDL", "HDL"), 
+                 showPlot = F)
+showSVG(myNV, opacity=0.2, outFile = "results/plots/mvmr_gws_venn.svg")
+
+## All SNPs 
+set1 <- list(exposure1 %>% filter(SNP %in% mvmr_snps, pval.exposure < 5e-8) %>% pull(SNP))
+set2 <- list(exposure2 %>% filter(SNP %in% mvmr_snps, pval.exposure < 5e-8) %>% pull(SNP))
+set3 <- list(outcome %>% filter(SNP %in% mvmr_snps) %>% pull(SNP))
+myNV <- plotVenn(list(set1, set2, set3), sNames=c("LDL", "HDL", "AD"), 
+                 showPlot = F)
+showSVG(myNV, opacity=0.2, outFile = "results/plots/mvmr_venn.svg")
+
 
 ```
 
@@ -341,6 +378,7 @@ radial_res <- map(radial_dat, function(x){
   }
 )
 
+
 ```
 
 ```{r plots}
@@ -353,25 +391,29 @@ radial_p <-  map(radial_res, function(x){
   }
 )
 
+radial_p <- plot_radial(radial_res$LDL.AD, radial_scale = F, show_outliers = T)
+radial_p
 
-joint_mr_p <- plot_grid(
-  scatter_p[[1]] + labs(title = "LDL") + theme_bw() + theme(legend.position = 'non', text = element_text(size = 8)),
-  scatter_p[[2]] + labs(title = "HDL") + theme_bw() + theme(legend.position = 'non', text = element_text(size = 8)), 
-  funnel_p[[1]] + labs(title = "LDL") + theme_bw() + theme(legend.position = 'non', text = element_text(size = 8)), 
-  funnel_p[[2]] + labs(title = "HDL") + theme_bw() + theme(legend.position = 'non', text = element_text(size = 8))
+joint_mr_p <- cowplot::plot_grid(
+  scatter_p[[1]] + labs(title = "HDL") + theme_bw() + theme(legend.position = 'none', text = element_text(size = 8)),
+  funnel_p[[1]] + labs(title = "HDL") + theme_bw() + theme(legend.position = 'none', text = element_text(size = 8)), 
+  radial_p[[1]] + labs(title = "HDL") + coord_fixed(ratio=0.25) + theme(legend.position = 'none', text = element_text(size = 6)), 
+  scatter_p[[2]] + labs(title = "LDL") + theme_bw() + theme(legend.position = 'none', text = element_text(size = 8)), 
+  funnel_p[[2]] + labs(title = "LDL") + theme_bw() + theme(legend.position = 'none', text = element_text(size = 8)),
+  radial_p[[2]] + labs(title = "LDL") + coord_fixed(ratio=0.25) + theme(legend.position = 'none', text = element_text(size = 6))
   )
 
 
-legend_scatter <- get_legend(
+legend_scatter <- cowplot::get_legend(
   # create some space to the left of the legend
-  scatter_p[[1]] + theme(legend.box.margin = margin(0, 0, 0, 12))
+  scatter_p[[1]] + theme(legend.box.margin = margin(12, 12, 12, 12))
 )
 
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
-scatter_out.p <- plot_grid(joint_mr_p, legend_scatter, rel_heights = c(3, .4), nrow = 2)
+scatter_out.p <- cowplot::plot_grid(joint_mr_p, legend_scatter, rel_heights = c(4, 1), nrow = 2)
 
-
+radial_p[[2]] + labs(title = "LDL") + theme(legend.position = 'none', text = element_text(size = 6)) + coord_fixed(ratio=0.5)
 ```
 
 
@@ -390,6 +432,63 @@ write_csv(mvmr_res$result, 'results/mvmr_res.csv')
 
 ggsave('results/plots/mr_scatter_funnel.png', plot = scatter_out.p, units = 'in', height = 4, width = 9)
 
+
+## GT 
+mr_res %>%
+  select(-id.exposure, -id.outcome) %>%
+  gt() %>%
+  fmt_number(
+    columns = c("b", "se")
+  ) %>%
+  fmt_number(
+    columns = pval,
+    rows = pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = pval,
+    rows = pval <= 0.001,
+    decimals = 1
+  ) %>%
+  gtsave(., 'results/tables/mvmr_uni_res.png')
+
+### Heterogenity
+het_res %>%
+  select(-id.exposure, -id.outcome) %>%
+  gt() %>%
+  fmt_number(
+    columns = Q
+  ) %>%
+  fmt_number(
+    columns = Q_pval,
+    rows = Q_pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = Q_pval,
+    rows = Q_pval <= 0.001,
+    decimals = 1
+  ) %>%
+  gtsave(., 'results/tables/mvmr_uni_het.png')  
+
+### Pleiotropy
+plei_res %>%
+  select(-id.exposure, -id.outcome) %>%
+  gt() %>%
+  fmt_number(
+    columns = c('egger_intercept', 'se')
+  ) %>%
+  fmt_number(
+    columns = pval,
+    rows = pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = pval,
+    rows = pval <= 0.001,
+    decimals = 1
+  ) %>%
+  gtsave(., 'results/tables/mvmr_uni_plt.png')  
 ```
 
 ### MVMR package
@@ -437,7 +536,7 @@ mvmr_out <- bind_rows(
     janitor::clean_names() %>%
     rename(exposure = rowname, b = estimate, se = std_error, p = pr_t) %>%
     mutate(
-      exposure = ifelse(exposure == 'exposure1', 'LDL', 'HDL'), 
+      exposure = ifelse(exposure == 'exposure1', 'HDL', 'LDL'), 
       outcome = 'AD', 
       method = 'Radial-MVMR'
     ) %>%
@@ -450,7 +549,7 @@ mvmr_out <- bind_rows(
     janitor::clean_names() %>%
     rename(exposure = rowname, b = estimate, se = std_error, p = pr_t) %>%
     mutate(
-      exposure = ifelse(exposure == 'exposure1', 'LDL', 'HDL'), 
+      exposure = ifelse(exposure == 'exposure1', 'HDL', 'LDL'), 
       outcome = 'AD',
       method = 'IVW-MVMR'
     ) %>%
@@ -470,7 +569,7 @@ ggsave('results/plots/rmvmr_scatter_funnel.png', plot = rmvrm_p[[1]], units = 'i
 
 ```
 
-### Mendelian Randomization Package
+### MendelianRandomization & MVMRmode Package
 ```{r MendelianRandomization}
 
 MRMVInputObject <- MendelianRandomization::mr_mvinput(
@@ -479,7 +578,7 @@ MRMVInputObject <- MendelianRandomization::mr_mvinput(
   by = mvdat$outcome_beta,
   byse = mvdat$outcome_se,
   snps = rownames(mvdat$exposure_beta), 
-  exposure = c('LDL', 'HDL'), 
+  exposure = c('HDL', 'LDL'), 
   outcome = 'AD'
   )
 
@@ -509,19 +608,83 @@ MRMV_wme_df <- cbind(MRMV_wme@Exposure, MRMV_wme@Outcome, MRMV_wme@Estimate, MRM
   magrittr::set_colnames(c("Exposure", "Outcome", "b", "se", "p")) %>%
   mutate(method = "MRMV-WME")
 
-MRMV_out <- bind_rows(
-    MRMV_ivw_df, MRMV_egger_df, MRMV_wme_df
-  ) %>%
-  relocate(method, .after = Outcome) %>%
-  mutate_at(vars(b, se, p), as.double)
 
-write_csv(MRMV_out, 'results/mvmr_sensetivity_results.csv')
+MRMV_wbe_res <- MVMRmode::mv_mrmode(Bout = mvdat$outcome_beta, 
+                    Bexp = mvdat$exposure_beta, 
+                    SEout = mvdat$outcome_se, 
+                    SEexp = mvdat$exposure_se, 
+                    Psi=0, CIMin = NA, CIMax = NA, CIStep = 0.001, alpha = 0.05, 
+                    residual="IVW",Mode="CM",weighting = "weighted", stderror = "simple", 
+                    phi = 1,distribution = "normal",iterations = 10000)
+
+MRMV_wbe_df <- as_tibble(MRMV_wbe_res) %>%
+  rename(b = Estimate, p = Pvalue) %>%
+  mutate(Exposure = c("LDL", "HDL"), 
+         Outcome = "AD", 
+         method = 'MRMV_WBE') %>%
+  mutate_if(is.double, as.character)
 
 
 ```
 
+```{r MRMV_out}
 
 
+MRMV_out <- bind_rows(
+    MRMV_ivw_df, MRMV_egger_df, MRMV_wme_df, MRMV_wbe_df
+  ) %>%
+  relocate(method, .after = Outcome) %>%
+  select(Exposure, Outcome, method, b, se, p) %>%
+  mutate_at(vars(b, se, p), as.double)
+
+write_csv(MRMV_out, 'results/mvmr_sensetivity_results.csv')
+
+MRMV_out %>%
+  pivot_wider(names_from = Exposure, values_from = c('b', 'se', 'p')) %>%
+  relocate(se_HDL, p_HDL, .after = b_HDL) %>%
+  gt() %>%
+  fmt_number(
+    columns = c("b_HDL", "se_HDL", "b_LDL", "se_LDL")
+  ) %>% 
+  fmt_number(
+    columns = c("p_LDL"),
+    rows =  p_LDL > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = c("p_LDL"),
+    rows = p_LDL <= 0.001,
+    decimals = 1
+  ) %>%
+  fmt_number(
+    columns = c("p_HDL"),
+    rows = p_HDL > 0.001 ,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = c("p_HDL"),
+    rows = p_HDL <= 0.001,
+    decimals = 1
+  ) %>%
+  tab_spanner(
+    label = "HDL",
+    columns = c("b_HDL", "se_HDL", "p_HDL")
+  ) %>%
+  tab_spanner(
+    label = "LDL",
+    columns = c("b_LDL", "se_LDL", "p_LDL")
+  ) %>%
+  cols_label(
+    b_LDL = 'b',
+    se_LDL = 'se',
+    p_LDL = 'p',
+    b_HDL = 'b',
+    se_HDL = 'se',
+    p_HDL = 'p',
+  ) %>%
+  gtsave(., 'results/tables/mvmr_res.png')
+
+```
 
 
 

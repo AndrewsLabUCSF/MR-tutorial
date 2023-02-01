@@ -280,7 +280,11 @@ write_csv(mr_res, 'results/mr_results.csv')
 ## Plots 
 ```{r plots}
 scatter_p <- mr_scatter_plot(mr_res, mr_dat) 
-scatter_p
+scatter_out_p <- scatter_p[[1]] + theme_bw() + 
+  guides(color=guide_legend(ncol =1)) + 
+  theme(
+    text = element_text(size = 8), 
+  )
 
 loo_p <- mr_leaveoneout_plot(res_loo)
 loo_p
@@ -289,7 +293,12 @@ forrest_p <- mr_forest_plot(res_single)
 forrest_p
 
 funnel_p <- mr_funnel_plot(res_single)
-funnel_p
+funnel_out_p <- funnel_p[[1]] + theme_bw() + 
+  guides(color=guide_legend(ncol =1)) + 
+  theme(
+    text = element_text(size = 8), 
+  )
+
 
 radial_p <- plot_radial(radial_res, radial_scale = F, show_outliers = T)
 radial_p
@@ -297,10 +306,10 @@ radial_p
 
 ```{r export plots}
 ## CSV
-ggsave('results/plots/mr_scatter.png', plot = scatter_p[[1]], units = 'in', height = 4, width = 9)
+ggsave('results/plots/mr_scatter.png', plot = scatter_out_p, units = 'in', height = 4, width = 9)
 ggsave('results/plots/mr_loo.png', plot = loo_p[[1]], units = 'in', height = 9, width = 9)
 ggsave('results/plots/mr_forrest.png', plot =forrest_p[[1]] + theme(text = element_text(size = 8)), units = 'in', height = 9, width = 9)
-ggsave('results/plots/mr_funnel.png', plot = funnel_p[[1]], units = 'in', height = 4, width = 9)
+ggsave('results/plots/mr_funnel.png', plot = funnel_out_p, units = 'in', height = 4, width = 9)
 ggsave('results/plots/mr_radial.png', plot = radial_p, units = 'in', height = 4, width = 9)
 
 
