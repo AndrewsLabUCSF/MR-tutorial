@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.269">
+<meta name="generator" content="quarto-1.2.335">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>test - 1&nbsp; Introduction</title>
+<title>Mendelian Randomization Tutorial - 1&nbsp; Introduction</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,88 +20,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1.6em;
   vertical-align: middle;
 }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-div.csl-bib-body { }
-div.csl-entry {
-  clear: both;
-}
-.hanging div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-}
-div.csl-left-margin {
-  min-width:2em;
-  float:left;
-}
-div.csl-right-inline {
-  margin-left:2em;
-  padding-left:1em;
-}
-div.csl-indent {
-  margin-left: 2em;
-}
 </style>
 
 
@@ -112,7 +30,7 @@ div.csl-indent {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../scripts/summary.html" rel="next">
+<link href="../scripts/sumstats.html" rel="next">
 <link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -165,7 +83,11 @@ div.csl-indent {
   <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="../">test</a> 
+      <a href="../">Mendelian Randomization Tutorial</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/AndrewsLabUCSF/MR-tutorial" title="Source Code" class="sidebar-tool px-1"><i class="bi bi-github"></i></a>
+    <a href="https://twitter.com/intent/tweet?url=|url|" title="Twitter" class="sidebar-tool px-1"><i class="bi bi-twitter"></i></a>
+</div>
     </div>
       </div>
       <div class="mt-2 flex-shrink-0 align-items-center">
@@ -187,7 +109,7 @@ div.csl-indent {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../scripts/summary.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Summary</span></a>
+  <a href="../scripts/sumstats.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Standardizing and harmonizing GWAS SumStats</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -200,7 +122,25 @@ div.csl-indent {
 </nav>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#phenotypes" id="toc-phenotypes" class="nav-link active" data-scroll-target="#phenotypes">Phenotypes</a>
+  <ul class="collapse">
+  <li><a href="#lipids" id="toc-lipids" class="nav-link" data-scroll-target="#lipids">Lipids</a></li>
+  <li><a href="#alzheimers-disease" id="toc-alzheimers-disease" class="nav-link" data-scroll-target="#alzheimers-disease">Alzheimer’s disease</a></li>
+  <li><a href="#sumstat-standardization" id="toc-sumstat-standardization" class="nav-link" data-scroll-target="#sumstat-standardization">SumStat Standardization</a></li>
+  </ul></li>
+  <li><a href="#reading-list" id="toc-reading-list" class="nav-link" data-scroll-target="#reading-list">Reading List</a>
+  <ul class="collapse">
+  <li><a href="#genome-wide-association-studies" id="toc-genome-wide-association-studies" class="nav-link" data-scroll-target="#genome-wide-association-studies">Genome-wide association studies</a></li>
+  <li><a href="#mendelian-randomization" id="toc-mendelian-randomization" class="nav-link" data-scroll-target="#mendelian-randomization">Mendelian Randomization</a></li>
+  <li><a href="#multivariable-mendelian-randomization" id="toc-multivariable-mendelian-randomization" class="nav-link" data-scroll-target="#multivariable-mendelian-randomization">Multivariable Mendelian Randomization</a></li>
+  <li><a href="#r-packages-tutorials-and-databases" id="toc-r-packages-tutorials-and-databases" class="nav-link" data-scroll-target="#r-packages-tutorials-and-databases">R packages, tutorials, and databases</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -222,21 +162,81 @@ div.csl-indent {
 
 </header>
 
-<p>This is a book created from markdown and executable code.</p>
-<p>See <span class="citation" data-cites="knuth84">Knuth (<a href="references.html#ref-knuth84" role="doc-biblioref">1984</a>)</span> for additional discussion of literate programming.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 2</code></pre>
-</div>
-</div>
+<p>Mendelian randomization (MR) is a statistical method used in genetic epidemiology to examine the causal relationship between a modifiable exposure and an outcome. This tutorial provides an overview of the underlying theory and assumptions for various MR methods and step-by-step guidance on how to implement them using R.</p>
+<section id="phenotypes" class="level2">
+<h2 class="anchored" data-anchor-id="phenotypes">Phenotypes</h2>
+<p>The following genome-wide association studies (GWAS) are used as example traits for each of the MR methods covered in this tutorial.</p>
+<section id="lipids" class="level3">
+<h3 class="anchored" data-anchor-id="lipids">Lipids</h3>
+<p>A GWAS of low-density lipoprotein (LDL) cholesterol, high-density lipoprotein (HDL) cholesterol, triglycerides and total cholesterol levels conducted in 188,577 individuals that identified 157 loci were associated with lipid levels.</p>
+<p>Willer, C. J. et al.&nbsp;Discovery and refinement of loci associated with lipid levels. <a href="https://www.nature.com/articles/ng.2797">Nat Genet 45, 1274–83 (2013)</a>.</p>
+<p>Summary statistics</p>
+<ol type="1">
+<li><a href="https://www.dropbox.com/s/5lqbx2dv8h5r8fc/Willer2013ldl.chrall.CPRA_b37.tsv.gz?dl=0">LDL Cholesterol</a></li>
+<li><a href="https://www.dropbox.com/s/l4r8zcsdpg46c12/Willer2013hdl.chrall.CPRA_b37.tsv.gz?dl=0">HDL Cholesterol</a></li>
+<li><a href="https://www.dropbox.com/s/7vhuaczrvt2nstm/Willer2013tg.chrall.CPRA_b37.tsv.gz?dl=0">Triglycerides</a></li>
+<li><a href="https://www.dropbox.com/s/ovc7wut33wekzga/Willer2013tc.chrall.CPRA_b37.tsv.gz?dl=0">Total cholesterol</a></li>
+</ol>
+</section>
+<section id="alzheimers-disease" class="level3">
+<h3 class="anchored" data-anchor-id="alzheimers-disease">Alzheimer’s disease</h3>
+<p>A GWAS of Alzheimer’s disease conducted in 94,437 indivudles by the International Genomics Alzheiemr’s Project that Identified 20 genome-wide signiﬁcant loci.</p>
+<p>Kunkle, B. W. et al.&nbsp;Genetic meta-analysis of diagnosed Alzheimer’s disease identifies new risk loci and implicates Aβ, tau, immunity and lipid processing. <a href="https://www.nature.com/articles/s41588-019-0358-2">Nat Genet 51, 414–430 (2019)</a>.</p>
+<p>Summary statistics</p>
+<ol type="1">
+<li><a href="https://www.dropbox.com/s/2s6g8b0y14h19l7/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz?dl=0">Late-onset Alzheimer’s disease</a></li>
+</ol>
+</section>
+<section id="sumstat-standardization" class="level3">
+<h3 class="anchored" data-anchor-id="sumstat-standardization">SumStat Standardization</h3>
+<p>GWAS summary statistics were standardized using a Snakemake Workflow that (1) aligns effect alleles to the alternate allele on the forward strand of the human genome reference build and normalizes indels, (2) annotates variants with marker names using chromosome:position:ref:alt, 1000 Genomes rsIDs (phase III), and database-single-nucleotide polymorphism (dbSNP) rsIDs (b151) (3) where allele frequencies are missing, annotates allele frequencies using non-Finnish Europeans from gnomAD (version 2.1), and (4) convert summary statistics to VCF and TSV ﬁles.</p>
+<p>Andrews, S. J. et al.&nbsp;Causal Associations Between Modifiable Risk Factors and the Alzheimer’s Phenome. <a href="https://dx.doi.org/10.1002/ana.25918">Ann Neurol 89, 54–65 (2021)</a>.</p>
+</section>
+</section>
+<section id="reading-list" class="level2">
+<h2 class="anchored" data-anchor-id="reading-list">Reading List</h2>
+<p>These resources provide a good starting point for understanding the basic concepts and methods of MR, as well as the current best practices and software tools available for conducting MR studies.</p>
+<section id="genome-wide-association-studies" class="level3">
+<h3 class="anchored" data-anchor-id="genome-wide-association-studies">Genome-wide association studies</h3>
+<ol type="1">
+<li>Uffelmann, E. et al.&nbsp;Genome-wide association studies. <a href="https://www.nature.com/articles/s43586-021-00056-9">Nat Rev Methods Primers 1, 59 (2021)</a>.</li>
+<li>Marees, A. T. et al.&nbsp;A tutorial on conducting genome‐wide association studies: Quality control and statistical analysis. <a href="https://doi.org/10.1002%2Fmpr.1608">Int J Method Psych 27, e1608 (2018)</a>.</li>
+<li>MacArthur, J. A. L. et al.&nbsp;Workshop proceedings: GWAS summary statistics standards and sharing. <a href="https://doi.org/10.1016/j.xgen.2021.100004">Cell Genom 1, 100004 (2021)</a>.</li>
+</ol>
+</section>
+<section id="mendelian-randomization" class="level3">
+<h3 class="anchored" data-anchor-id="mendelian-randomization">Mendelian Randomization</h3>
+<ol type="1">
+<li>Sanderson, E. et al.&nbsp;Mendelian randomization. <a href="https://www.nature.com/articles/s43586-021-00092-5">Nat Rev Methods Primers 2, 6 (2022)</a>.</li>
+<li>Davies, N. M., Holmes, M. V. &amp; Smith, G. D. Reading Mendelian randomisation studies: a guide, glossary, and checklist for clinicians. <a href="https://dx.doi.org/10.1136/bmj.k601">Bmj 362, k601 (2017)</a>.</li>
+<li>Hemani, G. et al.&nbsp;The MR-Base platform supports systematic causal inference across the human phenome. <a href="https://elifesciences.org/articles/34408">Elife 7, e34408 (2018)</a>.</li>
+<li>Skrivankova, V. W. et al.&nbsp;Strengthening the Reporting of Observational Studies in Epidemiology Using Mendelian Randomization. <a href="https://jamanetwork.com/journals/jama/fullarticle/2785494">Jama 326, 1614–1621 (2021)</a>.</li>
+<li>Skrivankova, V. W. et al.&nbsp;Strengthening the reporting of observational studies in epidemiology using mendelian randomisation (STROBE-MR): explanation and elaboration. <a href="https://dx.doi.org/10.1136/bmj.n2233">Bmj 375, n2233 (2021)</a>.</li>
+</ol>
+</section>
+<section id="multivariable-mendelian-randomization" class="level3">
+<h3 class="anchored" data-anchor-id="multivariable-mendelian-randomization">Multivariable Mendelian Randomization</h3>
+<ol type="1">
+<li>Sanderson, E. Multivariable Mendelian Randomization and Mediation. <a href="https://dx.doi.org/10.1101/cshperspect.a038984">Csh Perspect Med 11, a038984 (2020)</a>.</li>
+<li>Carter, A. R. et al.&nbsp;Mendelian randomisation for mediation analysis: current methods and challenges for implementation. <a href="https://link.springer.com/article/10.1007/s10654-021-00757-1">Eur J Epidemiol 36, 465–478 (2021)</a>.</li>
+</ol>
+</section>
+<section id="r-packages-tutorials-and-databases" class="level3">
+<h3 class="anchored" data-anchor-id="r-packages-tutorials-and-databases">R packages, tutorials, and databases</h3>
+<ul>
+<li><a href="https://www.ebi.ac.uk/gwas/home">GWAS Catalog</a>: A database of genome-wide association studies and loci-trait associsation discovered.</li>
+<li><a href="http://www.phenoscanner.medschl.cam.ac.uk/">PhenoScanner</a>: A database of human genotype-phenotype associations.</li>
+<li><a href="https://neurogenomics.github.io/MungeSumstats/index.html">MungeSumstats</a>: Tutorial for standardizing GWAS summary statistics using the <code>MungeSumstats</code> R package.</li>
+<li><a href="https://mrcieu.github.io/TwoSampleMR/index.html">TwoSampleMR</a>: Tutorial for conducting Two-Sample Mendelian randomization using the <code>TwoSampleMR</code> R package</li>
+<li><a href="https://wspiller.github.io/MVMR/articles/MVMR.html">MVMR</a>: Tutorial for conducting multivariable Mendelian ranomization using the <code>MVMR</code> R package.</li>
+<li><a href="https://cran.r-project.org/web/packages/MendelianRandomization/vignettes/Vignette_MR.pdf">MendelianRandomization</a>: Vignette for the <code>MendelianRandomization</code> R package.<br>
+</li>
+<li><a href="https://mr-dictionary.mrcieu.ac.uk/">MR Dictionary</a>: The definitive list of terms for Mendelian randomization research</li>
+</ul>
 
 
-<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography" style="display: none">
-<div id="ref-knuth84" class="csl-entry" role="doc-biblioentry">
-Knuth, Donald E. 1984. <span>“Literate Programming.”</span> <em>Comput. J.</em> 27 (2): 97–111. <a href="https://doi.org/10.1093/comjnl/27.2.97">https://doi.org/10.1093/comjnl/27.2.97</a>.
-</div>
-</div>
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -379,8 +379,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../scripts/summary.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Summary</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../scripts/sumstats.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Standardizing and harmonizing GWAS SumStats</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

@@ -4,13 +4,15 @@ project:
   execute-dir: project
 
 book:
-  title: "test"
-  author: "Jane Doe"
+  title: "Mendelian Randomization Tutorial"
+  author: "Shea J Andrews"
   date: "2/2/2023"
+  repo-url: https://github.com/AndrewsLabUCSF/MR-tutorial
+  sharing: [twitter]
   chapters:
     - index.qmd
     - scripts/intro.qmd
-    - scripts/summary.qmd
+    - scripts/sumstats.qmd
     - scripts/references.qmd
 
 bibliography: references.bib
@@ -18,6 +20,8 @@ bibliography: references.bib
 format:
   html:
     theme: yeti
+    number-depth: 1
+
 
 editor: visual
 

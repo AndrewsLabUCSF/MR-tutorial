@@ -1,9 +1,67 @@
 # Introduction
 
-This is a book created from markdown and executable code.
+Mendelian randomization (MR) is a statistical method used in genetic epidemiology to examine the causal relationship between a modifiable exposure and an outcome. This tutorial provides an overview of the underlying theory and assumptions for various MR methods and step-by-step guidance on how to implement them using R. 
 
-See @knuth84 for additional discussion of literate programming.
+## Phenotypes
+The following genome-wide association studies (GWAS) are used as example traits for each of the MR methods covered in this tutorial. 
 
-```{r}
-1 + 1
-```
+### Lipids
+A GWAS of low-density lipoprotein (LDL) cholesterol, high-density lipoprotein (HDL) cholesterol, triglycerides and total cholesterol levels conducted in 188,577 individuals that identified 157 loci were associated with lipid levels.
+
+Willer, C. J. et al. Discovery and refinement of loci associated with lipid levels. [Nat Genet 45, 1274–83 (2013)](https://www.nature.com/articles/ng.2797).
+
+Summary statistics 
+
+1. [LDL Cholesterol](https://www.dropbox.com/s/5lqbx2dv8h5r8fc/Willer2013ldl.chrall.CPRA_b37.tsv.gz?dl=0)
+2. [HDL Cholesterol](https://www.dropbox.com/s/l4r8zcsdpg46c12/Willer2013hdl.chrall.CPRA_b37.tsv.gz?dl=0)
+3. [Triglycerides](https://www.dropbox.com/s/7vhuaczrvt2nstm/Willer2013tg.chrall.CPRA_b37.tsv.gz?dl=0)
+4. [Total cholesterol](https://www.dropbox.com/s/ovc7wut33wekzga/Willer2013tc.chrall.CPRA_b37.tsv.gz?dl=0) 
+
+### Alzheimer's disease 
+A GWAS of Alzheimer’s disease conducted in 94,437 indivudles by the International Genomics Alzheiemr’s Project that Identified 20 genome-wide signiﬁcant loci. 
+
+Kunkle, B. W. et al. Genetic meta-analysis of diagnosed Alzheimer’s disease identifies new risk loci and implicates Aβ, tau, immunity and lipid processing. [Nat Genet 51, 414–430 (2019)](https://www.nature.com/articles/s41588-019-0358-2).
+
+
+Summary statistics 
+
+1. [Late-onset Alzheimer's disease](https://www.dropbox.com/s/2s6g8b0y14h19l7/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz?dl=0) 
+
+### SumStat Standardization
+GWAS summary statistics were standardized using a Snakemake Workflow that (1) aligns effect alleles to the alternate allele on the forward strand of the human genome reference build and normalizes indels, (2) annotates variants with marker names using chromosome:position:ref:alt, 1000 Genomes rsIDs (phase III), and database-single-nucleotide polymorphism (dbSNP) rsIDs (b151) (3) where allele frequencies are missing, annotates allele frequencies using non-Finnish Europeans from gnomAD (version 2.1), and (4) convert summary statistics to VCF and TSV ﬁles. 
+
+Andrews, S. J. et al. Causal Associations Between Modifiable Risk Factors and the Alzheimer’s Phenome. [Ann Neurol 89, 54–65 (2021)](https://dx.doi.org/10.1002/ana.25918).
+  
+
+## Reading List
+These resources provide a good starting point for understanding the basic concepts and methods of MR, as well as the current best practices and software tools available for conducting MR studies.
+
+### Genome-wide association studies 
+
+1. Uffelmann, E. et al. Genome-wide association studies. [Nat Rev Methods Primers 1, 59 (2021)](https://www.nature.com/articles/s43586-021-00056-9).
+2. Marees, A. T. et al. A tutorial on conducting genome‐wide association studies: Quality control and statistical analysis. [Int J Method Psych 27, e1608 (2018)](https://doi.org/10.1002%2Fmpr.1608).
+3. MacArthur, J. A. L. et al. Workshop proceedings: GWAS summary statistics standards and sharing. [Cell Genom 1, 100004 (2021)](https://doi.org/10.1016/j.xgen.2021.100004).
+       
+
+### Mendelian Randomization
+
+1. Sanderson, E. et al. Mendelian randomization. [Nat Rev Methods Primers 2, 6 (2022)](https://www.nature.com/articles/s43586-021-00092-5).
+2. Davies, N. M., Holmes, M. V. & Smith, G. D. Reading Mendelian randomisation studies: a guide, glossary, and checklist for clinicians. [Bmj 362, k601 (2017)](https://dx.doi.org/10.1136/bmj.k601).
+3. Hemani, G. et al. The MR-Base platform supports systematic causal inference across the human phenome. [Elife 7, e34408 (2018)](https://elifesciences.org/articles/34408).
+4. Skrivankova, V. W. et al. Strengthening the Reporting of Observational Studies in Epidemiology Using Mendelian Randomization. [Jama 326, 1614–1621 (2021)](https://jamanetwork.com/journals/jama/fullarticle/2785494).
+5. Skrivankova, V. W. et al. Strengthening the reporting of observational studies in epidemiology using mendelian randomisation (STROBE-MR): explanation and elaboration. [Bmj 375, n2233 (2021)](https://dx.doi.org/10.1136/bmj.n2233).
+  
+### Multivariable Mendelian Randomization 
+
+1. Sanderson, E. Multivariable Mendelian Randomization and Mediation. [Csh Perspect Med 11, a038984 (2020)](https://dx.doi.org/10.1101/cshperspect.a038984).
+2. Carter, A. R. et al. Mendelian randomisation for mediation analysis: current methods and challenges for implementation. [Eur J Epidemiol 36, 465–478 (2021)](https://link.springer.com/article/10.1007/s10654-021-00757-1).
+    
+
+### R packages, tutorials, and databases 
+- [GWAS Catalog](https://www.ebi.ac.uk/gwas/home): A database of genome-wide association studies and loci-trait associsation discovered. 
+- [PhenoScanner](http://www.phenoscanner.medschl.cam.ac.uk/): A database of human genotype-phenotype associations.
+- [MungeSumstats](https://neurogenomics.github.io/MungeSumstats/index.html): Tutorial for standardizing GWAS summary statistics using the `MungeSumstats` R package. 
+- [TwoSampleMR](https://mrcieu.github.io/TwoSampleMR/index.html): Tutorial for conducting Two-Sample Mendelian randomization using the `TwoSampleMR` R package
+- [MVMR](https://wspiller.github.io/MVMR/articles/MVMR.html): Tutorial for conducting multivariable Mendelian ranomization using the `MVMR` R package. 
+- [MendelianRandomization](https://cran.r-project.org/web/packages/MendelianRandomization/vignettes/Vignette_MR.pdf): Vignette for the `MendelianRandomization` R package.  
+- [MR Dictionary](https://mr-dictionary.mrcieu.ac.uk/): The definitive list of terms for Mendelian randomization research

@@ -2,29 +2,29 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "test",
+    "title": "Mendelian Randomization Tutorial",
     "section": "",
-    "text": "Preface\nThis is a Quarto book.\nTo learn more about Quarto books visit https://quarto.org/docs/books.\n\n1 + 1\n\n[1] 2"
+    "text": "Preface\nMendelian randomization (MR) is a statistical method used in genetic epidemiology to examine the causal relationship between a modifiable exposure and an outcome. This tutorial provides an overview of the underlying theory and assumptions for various MR methods and step-by-step guidance on how to implement them using R."
   },
   {
-    "objectID": "scripts/intro.html",
-    "href": "scripts/intro.html",
+    "objectID": "scripts/intro.html#phenotypes",
+    "href": "scripts/intro.html#phenotypes",
     "title": "1  Introduction",
-    "section": "",
-    "text": "This is a book created from markdown and executable code.\nSee Knuth (1984) for additional discussion of literate programming.\n\n1 + 1\n\n[1] 2\n\n\n\n\n\n\nKnuth, Donald E. 1984. “Literate Programming.” Comput. J. 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97."
+    "section": "Phenotypes",
+    "text": "Phenotypes\nThe following genome-wide association studies (GWAS) are used as example traits for each of the MR methods covered in this tutorial.\n\nLipids\nA GWAS of low-density lipoprotein (LDL) cholesterol, high-density lipoprotein (HDL) cholesterol, triglycerides and total cholesterol levels conducted in 188,577 individuals that identified 157 loci were associated with lipid levels.\nWiller, C. J. et al. Discovery and refinement of loci associated with lipid levels. Nat Genet 45, 1274–83 (2013).\nSummary statistics\n\nLDL Cholesterol\nHDL Cholesterol\nTriglycerides\nTotal cholesterol\n\n\n\nAlzheimer’s disease\nA GWAS of Alzheimer’s disease conducted in 94,437 indivudles by the International Genomics Alzheiemr’s Project that Identified 20 genome-wide signiﬁcant loci.\nKunkle, B. W. et al. Genetic meta-analysis of diagnosed Alzheimer’s disease identifies new risk loci and implicates Aβ, tau, immunity and lipid processing. Nat Genet 51, 414–430 (2019).\nSummary statistics\n\nLate-onset Alzheimer’s disease\n\n\n\nSumStat Standardization\nGWAS summary statistics were standardized using a Snakemake Workflow that (1) aligns effect alleles to the alternate allele on the forward strand of the human genome reference build and normalizes indels, (2) annotates variants with marker names using chromosome:position:ref:alt, 1000 Genomes rsIDs (phase III), and database-single-nucleotide polymorphism (dbSNP) rsIDs (b151) (3) where allele frequencies are missing, annotates allele frequencies using non-Finnish Europeans from gnomAD (version 2.1), and (4) convert summary statistics to VCF and TSV ﬁles.\nAndrews, S. J. et al. Causal Associations Between Modifiable Risk Factors and the Alzheimer’s Phenome. Ann Neurol 89, 54–65 (2021)."
   },
   {
-    "objectID": "scripts/summary.html",
-    "href": "scripts/summary.html",
-    "title": "2  Summary",
-    "section": "",
-    "text": "In summary, this book has no content whatsoever.\n\n1 + 1\n\n[1] 2"
+    "objectID": "scripts/intro.html#reading-list",
+    "href": "scripts/intro.html#reading-list",
+    "title": "1  Introduction",
+    "section": "Reading List",
+    "text": "Reading List\nThese resources provide a good starting point for understanding the basic concepts and methods of MR, as well as the current best practices and software tools available for conducting MR studies.\n\nGenome-wide association studies\n\nUffelmann, E. et al. Genome-wide association studies. Nat Rev Methods Primers 1, 59 (2021).\nMarees, A. T. et al. A tutorial on conducting genome‐wide association studies: Quality control and statistical analysis. Int J Method Psych 27, e1608 (2018).\nMacArthur, J. A. L. et al. Workshop proceedings: GWAS summary statistics standards and sharing. Cell Genom 1, 100004 (2021).\n\n\n\nMendelian Randomization\n\nSanderson, E. et al. Mendelian randomization. Nat Rev Methods Primers 2, 6 (2022).\nDavies, N. M., Holmes, M. V. & Smith, G. D. Reading Mendelian randomisation studies: a guide, glossary, and checklist for clinicians. Bmj 362, k601 (2017).\nHemani, G. et al. The MR-Base platform supports systematic causal inference across the human phenome. Elife 7, e34408 (2018).\nSkrivankova, V. W. et al. Strengthening the Reporting of Observational Studies in Epidemiology Using Mendelian Randomization. Jama 326, 1614–1621 (2021).\nSkrivankova, V. W. et al. Strengthening the reporting of observational studies in epidemiology using mendelian randomisation (STROBE-MR): explanation and elaboration. Bmj 375, n2233 (2021).\n\n\n\nMultivariable Mendelian Randomization\n\nSanderson, E. Multivariable Mendelian Randomization and Mediation. Csh Perspect Med 11, a038984 (2020).\nCarter, A. R. et al. Mendelian randomisation for mediation analysis: current methods and challenges for implementation. Eur J Epidemiol 36, 465–478 (2021).\n\n\n\nR packages, tutorials, and databases\n\nGWAS Catalog: A database of genome-wide association studies and loci-trait associsation discovered.\nPhenoScanner: A database of human genotype-phenotype associations.\nMungeSumstats: Tutorial for standardizing GWAS summary statistics using the MungeSumstats R package.\nTwoSampleMR: Tutorial for conducting Two-Sample Mendelian randomization using the TwoSampleMR R package\nMVMR: Tutorial for conducting multivariable Mendelian ranomization using the MVMR R package.\nMendelianRandomization: Vignette for the MendelianRandomization R package.\n\nMR Dictionary: The definitive list of terms for Mendelian randomization research"
   },
   {
-    "objectID": "scripts/references.html",
-    "href": "scripts/references.html",
-    "title": "References",
+    "objectID": "scripts/sumstats.html",
+    "href": "scripts/sumstats.html",
+    "title": "2  Standardizing and harmonizing GWAS SumStats",
     "section": "",
-    "text": "Knuth, Donald E. 1984. “Literate Programming.” Comput.\nJ. 27 (2): 97–111. https://doi.org/10.1093/comjnl/27.2.97."
+    "text": "Two-sample MR methods require the use of summary statistics from genome-wide association studies, including single nucleotide polymorphisms (SNPs), beta coefficients, standard errors, p-values, and allele frequencies. However, the historical lack of standards for data content and file formats in GWAS summary statistics has resulted in heterogeneous data sets. To address this issue, standardizing and harmonizing the GWAS summary statistics is crucial before conducting MR analyses. The GWAS Catalog and OpenGWAS platforms have developed formats such as GWAS-SSF (Hayhurst et al. 2022) and GWAS-VCF (Lyon et al. 2021) to facilitate sharing of GWAS SumStats. Tools like MungeSumstats (Murphy et al 2021) and GWAS2VCF (Lyon et al. 2021) are available that provide rapid standardization and quality control of GWAS SumStats."
   }
 ]
