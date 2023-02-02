@@ -1,0 +1,23 @@
+project:
+  type: book
+  output-dir: docs
+  execute-dir: project
+
+book:
+  title: "test"
+  author: "Jane Doe"
+  date: "2/2/2023"
+  chapters:
+    - index.qmd
+    - scripts/intro.qmd
+    - scripts/summary.qmd
+    - scripts/references.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: yeti
+
+editor: visual
+
