@@ -13,7 +13,12 @@ book:
     - index.qmd
     - scripts/intro.qmd
     - scripts/sumstats.qmd
+    - part: scripts/methods.qmd
+      chapters:
+        - scripts/mr_harmonization.qmd
     - scripts/references.qmd
+
+  
 
 bibliography: references.bib
 

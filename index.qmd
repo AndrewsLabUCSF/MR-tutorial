@@ -1,3 +1,5 @@
 # Preface {.unnumbered}
 
-Mendelian randomization (MR) is a statistical method used in genetic epidemiology to examine the causal relationship between a modifiable exposure and an outcome. This tutorial provides an overview of the underlying theory and assumptions for various MR methods and step-by-step guidance on how to implement them using R. 
+Mendelian randomization (MR) is a method used to infer causality between and exposure and outcome using genetic variants as instrumental variables. It is based on the idea that genetic variants, which are inherited randomly and not influenced by environmental factors or reverse causation, can be used to estimate the causal effect of an exposure on an outcome.
+
+These resources aim to provide a starting point for understanding the basic concepts and methods of MR, as well as the current best practices and software tools available for conducting MR studies.

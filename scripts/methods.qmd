@@ -1,0 +1,2 @@
+# Methods
+An overview of different Mendelian randomization methods for evaluating the causal effect of an exposure on an outcome.
