@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Mendelian Randomization Tutorial - 1&nbsp; Introduction</title>
+<title>Mendelian Randomization Tutorial - Introduction</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,69 +20,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1.6em;
   vertical-align: middle;
 }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
@@ -93,7 +30,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../scripts/sumstats.html" rel="next">
+<link href="../scripts/phenotypes.html" rel="next">
 <link href="../index.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -133,7 +70,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
     <div class="container-fluid d-flex justify-content-between">
-      <h1 class="quarto-secondary-nav-title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></h1>
+      <h1 class="quarto-secondary-nav-title">Introduction</h1>
       <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
         <i class="bi bi-chevron-right"></i>
       </button>
@@ -165,19 +102,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <a href="../index.html" class="sidebar-item-text sidebar-link">Preface</a>
   </div>
 </li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../scripts/intro.html" class="sidebar-item-text sidebar-link active"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../scripts/sumstats.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Standardizing and harmonizing GWAS SumStats</span></a>
-  </div>
-</li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a href="../scripts/methods.html" class="sidebar-item-text sidebar-link">Methods</a>
+            <a href="../scripts/intro.html" class="sidebar-item-text sidebar-link active">Introduction</a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -185,7 +112,32 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../scripts/phenotypes.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Phenotypes</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../scripts/sumstats.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Standardizing and harmonizing GWAS SumStats</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../scripts/methods.html" class="sidebar-item-text sidebar-link">Methods</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../scripts/mr_harmonization.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Harmonizing SumStats</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../scripts/mr.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">TwoSampleMR</span></a>
   </div>
 </li>
       </ul>
@@ -204,13 +156,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#phenotypes" id="toc-phenotypes" class="nav-link active" data-scroll-target="#phenotypes">Phenotypes</a>
-  <ul class="collapse">
-  <li><a href="#lipids" id="toc-lipids" class="nav-link" data-scroll-target="#lipids">Lipids</a></li>
-  <li><a href="#alzheimers-disease" id="toc-alzheimers-disease" class="nav-link" data-scroll-target="#alzheimers-disease">Alzheimer’s disease</a></li>
-  <li><a href="#sumstat-standardization" id="toc-sumstat-standardization" class="nav-link" data-scroll-target="#sumstat-standardization">SumStat Standardization</a></li>
-  </ul></li>
-  <li><a href="#reading-list" id="toc-reading-list" class="nav-link" data-scroll-target="#reading-list">Reading List</a>
+  <li><a href="#sugested-readings" id="toc-sugested-readings" class="nav-link active" data-scroll-target="#sugested-readings">Sugested Readings</a>
   <ul class="collapse">
   <li><a href="#genome-wide-association-studies" id="toc-genome-wide-association-studies" class="nav-link" data-scroll-target="#genome-wide-association-studies">Genome-wide association studies</a></li>
   <li><a href="#mendelian-randomization" id="toc-mendelian-randomization" class="nav-link" data-scroll-target="#mendelian-randomization">Mendelian Randomization</a></li>
@@ -225,7 +171,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title d-none d-lg-block"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></h1>
+<h1 class="title d-none d-lg-block">Introduction</h1>
 </div>
 
 
@@ -241,104 +187,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </header>
 
 <p>Mendelian randomization (MR) is a statistical method used in genetic epidemiology to examine the causal relationship between a modifiable exposure and an outcome. This tutorial provides an overview of the underlying theory and assumptions for various MR methods and step-by-step guidance on how to implement them using R.</p>
-<div class="cell">
-<details>
-<summary>Load R Packages</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)    <span class="co"># Data wrangling </span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TwoSampleMR)  <span class="co"># MR </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggman)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Define column types for summary statistics</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>coltypes <span class="ot">=</span> <span class="fu">cols</span>(</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">ID =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">CHROM =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">POS =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">REF =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">ALT =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">AF =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">TRAIT =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">BETA =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">Z =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">P =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">OR =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">OR_L95 =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">OR_U95 =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">DIR =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">G1000_ID =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">G1000_VARIANT =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">DBSNP_ID =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">DBSNP_VARIANT =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">OLD_ID =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">OLD_VARIANT =</span> <span class="fu">col_character</span>()</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
-<section id="phenotypes" class="level2">
-<h2 class="anchored" data-anchor-id="phenotypes">Phenotypes</h2>
-<p>The following genome-wide association studies (GWAS) are used as example traits for each of the MR methods covered in this tutorial.</p>
-<section id="lipids" class="level3">
-<h3 class="anchored" data-anchor-id="lipids">Lipids</h3>
-<p>A GWAS of low-density lipoprotein (LDL) cholesterol, high-density lipoprotein (HDL) cholesterol, triglycerides and total cholesterol levels conducted in 188,577 individuals that identified 157 loci were associated with lipid levels.</p>
-<p>Willer, C. J. et al.&nbsp;Discovery and refinement of loci associated with lipid levels. <a href="https://www.nature.com/articles/ng.2797">Nat Genet 45, 1274–83 (2013)</a>.</p>
-<p>Summary statistics</p>
-<ol type="1">
-<li><a href="https://www.dropbox.com/s/5lqbx2dv8h5r8fc/Willer2013ldl.chrall.CPRA_b37.tsv.gz?dl=0">LDL Cholesterol</a></li>
-</ol>
-<div class="cell">
-<details>
-<summary>Total Cholesterol Manhattan</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>tc_path <span class="ot">=</span> <span class="st">"resources/Willer2013tc.chrall.CPRA_b37.tsv.gz"</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>tc_ss <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(tc_path, <span class="at">comment =</span> <span class="st">"##"</span>, <span class="at">col_types =</span> coltypes, </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">col_select =</span> <span class="fu">c</span>(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N, TRAIT))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter on p &lt; 0.5 to reduce compute</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggman</span>(<span class="fu">filter</span>(tc_ss, P <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">&amp;</span> P <span class="sc">&gt;</span> <span class="fl">1e-100</span>), <span class="at">snp =</span> <span class="st">"DBSNP_ID"</span>, <span class="at">bp =</span> <span class="st">"POS"</span>, <span class="at">chrom =</span> <span class="st">"CHROM"</span>, <span class="at">pvalue =</span> <span class="st">"P"</span>, <span class="at">relative.positions =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> </span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<p><img src="intro_files/figure-html/tc_manhattan-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<ol start="2" type="1">
-<li><a href="https://www.dropbox.com/s/l4r8zcsdpg46c12/Willer2013hdl.chrall.CPRA_b37.tsv.gz?dl=0">HDL Cholesterol</a></li>
-<li><a href="https://www.dropbox.com/s/7vhuaczrvt2nstm/Willer2013tg.chrall.CPRA_b37.tsv.gz?dl=0">Triglycerides</a></li>
-<li><a href="https://www.dropbox.com/s/ovc7wut33wekzga/Willer2013tc.chrall.CPRA_b37.tsv.gz?dl=0">Total cholesterol</a></li>
-</ol>
-</section>
-<section id="alzheimers-disease" class="level3">
-<h3 class="anchored" data-anchor-id="alzheimers-disease">Alzheimer’s disease</h3>
-<p>A GWAS of Alzheimer’s disease conducted in 94,437 indivudles by the International Genomics Alzheiemr’s Project that Identified 20 genome-wide signiﬁcant loci.</p>
-<p>Kunkle, B. W. et al.&nbsp;Genetic meta-analysis of diagnosed Alzheimer’s disease identifies new risk loci and implicates Aβ, tau, immunity and lipid processing. <a href="https://www.nature.com/articles/s41588-019-0358-2">Nat Genet 51, 414–430 (2019)</a>.</p>
-<p>Summary statistics</p>
-<ol type="1">
-<li><a href="https://www.dropbox.com/s/2s6g8b0y14h19l7/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz?dl=0">Late-onset Alzheimer’s disease</a></li>
-</ol>
-<div class="cell">
-<details>
-<summary>AD Manhattan Plot</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>AD_path <span class="ot">=</span> <span class="st">"resources/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz"</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>AD_ss <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(AD_path, <span class="at">comment =</span> <span class="st">"##"</span>,  <span class="at">col_types =</span> coltypes, </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">col_select =</span> <span class="fu">c</span>(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N, TRAIT))</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter on p &lt; 0.5 to reduce compute</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggman</span>(<span class="fu">filter</span>(AD_ss, P <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">&amp;</span> P <span class="sc">&gt;</span> <span class="fl">1e-100</span>), <span class="at">snp =</span> <span class="st">"DBSNP_ID"</span>, <span class="at">bp =</span> <span class="st">"POS"</span>, <span class="at">chrom =</span> <span class="st">"CHROM"</span>, <span class="at">pvalue =</span> <span class="st">"P"</span>, <span class="at">relative.positions =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> </span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<p><img src="intro_files/figure-html/AD_manhattan_plot-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-</section>
-<section id="sumstat-standardization" class="level3">
-<h3 class="anchored" data-anchor-id="sumstat-standardization">SumStat Standardization</h3>
-<p>GWAS summary statistics were standardized using a Snakemake Workflow that (1) aligns effect alleles to the alternate allele on the forward strand of the human genome reference build and normalizes indels, (2) annotates variants with marker names using chromosome:position:ref:alt, 1000 Genomes rsIDs (phase III), and database-single-nucleotide polymorphism (dbSNP) rsIDs (b151) (3) where allele frequencies are missing, annotates allele frequencies using non-Finnish Europeans from gnomAD (version 2.1), and (4) convert summary statistics to VCF and TSV ﬁles.</p>
-<p>Andrews, S. J. et al.&nbsp;Causal Associations Between Modifiable Risk Factors and the Alzheimer’s Phenome. <a href="https://dx.doi.org/10.1002/ana.25918">Ann Neurol 89, 54–65 (2021)</a>.</p>
-</section>
-</section>
-<section id="reading-list" class="level2">
-<h2 class="anchored" data-anchor-id="reading-list">Reading List</h2>
+<section id="sugested-readings" class="level2">
+<h2 class="anchored" data-anchor-id="sugested-readings">Sugested Readings</h2>
 <p>These resources provide a good starting point for understanding the basic concepts and methods of MR, as well as the current best practices and software tools available for conducting MR studies.</p>
 <section id="genome-wide-association-studies" class="level3">
 <h3 class="anchored" data-anchor-id="genome-wide-association-studies">Genome-wide association studies</h3>
@@ -523,8 +373,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../scripts/sumstats.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Standardizing and harmonizing GWAS SumStats</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../scripts/phenotypes.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Phenotypes</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

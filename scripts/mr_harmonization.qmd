@@ -5,7 +5,7 @@ editor_options:
 ---
 # Harmonizing SumStats
 
-In order to perform MR the effect of a SNP on an outcome and exposure must be harmonised to be relative to the same allele.
+In order to perform MR we need to combine our exposure and outcome datasets. Here we will use the `TwoSampleMR` procedure to harmonize GWAS summary stats.
 
 ```{r}
 #| label: packages
@@ -14,7 +14,6 @@ In order to perform MR the effect of a SNP on an outcome and exposure must be ha
 #| warning: false
 #| error: false
 #| message: false
-#| eval: false
 
 library(tidyverse)    # Data wrangling 
 library(TwoSampleMR)  # MR 
@@ -160,7 +159,7 @@ exposure <- exposure_ss %>%
 ```
 
 
-LD clumping is performed to obtain independent SNPs. By default a stringent LD clumping procedure is conducted using a 10Mb window with an r2 of 0.001. Setting `clump_p1 = 1` and `clump_p2 = 1` will perform clumping on all available SNPs.  
+Two-Sample MR methods usually utilize only independent genome-wide significant SNPs. The process of extracting these SNPs from the full genome-wide association study (GWAS) summary statistics involves linkage disequilibrium (LD) clumping. TwoSampleMR provides a clumping function, TwoSampleMR::clump_data(), which performs a stringent clumping procedure with a default window size of 10Mb and an r<sup>2</sup> threshold of 0.001. Setting `clump_p1 = 1` and `clump_p2 = 1` will perform clumping on all available SNPs. The GWAS summary statistics used in this analysis are from a population of European ancestry, and therefore the EUR reference panel is specified.
 ```{r}
 #| label: clump
 #| code-fold: true
@@ -185,6 +184,9 @@ exposure_clump <- exposure %>%
 # exposure_dat <- filter(exposure_clump, pval.exposure < 5e-8)
 exposure_dat <- exposure_clump
 ```
+::: {.callout-note}
+Typically you would filter to only genome-wide significant SNPs (`pval.exposure < 5e-8`). Here we are retaining all independent SNPs with pval.exposure < 0.01 to demonstrate how to identify proxy variants, as all of our GWS SNPs are present in the outcome GWAS.
+:::
 
 ## Outcome datasets
 
@@ -228,7 +230,9 @@ outcome <- outcome_ss %>%
 ```
 
 ### LD Proxy SNPs
+Proxy variants are genetic markers that are in strong linkage disequilibrium (LD) with the variants of interest, and can be used as a proxy to estimate the effect of the variants of interest on the outcome of interest. In some cases, variants in the exposure dataset may not be present in the outcome dataset due to different GWAS using different genotyping arrays, impuation methods, and QC practices. To overcome this, proxy variants in the outcome dataset can be substituted for the missing variant. 
 
+Here we first extract our exposure SNPs from the outcome GWAS and determine which SNPs are not presenting in the outcome dataset. We then query the [LDLink](https://ldlink.nci.nih.gov/?tab=home) web server to identify proxy variants that are in strong LD (r<sup>2</sup>) with the missing variant. The resulting proxy SNPs are then extracted from the outcome dataset and appended to the initial SNPs extracted from the outcome GWAS using `munge_proxies()` function.     
 ```{r}
 #| label: proxy
 #| code-fold: true
@@ -250,11 +254,11 @@ exp_snps_wo <- anti_join(
 
 # Use LDLinkR to identify proxy snps
 LDproxy_batch(exp_snps_wo$SNP, 
-        pop = "CEU", 
+        pop = "CEU",             # Match population ancestries
         r2d = "r2", 
         token = 'a6deee62cc4a', 
-        append = TRUE,
-        genome_build = "grch37")
+        append = TRUE,           # We appended the results of each LDlink query to a single file
+        genome_build = "grch37") # Select genome build based on summary stats
 system("mv combined_query_snp_list_grch37.txt data/exposure_outcome_proxy_snps.txt")
 
 
@@ -264,6 +268,7 @@ outcome_dat <- munge_proxies("data/exposure_outcome_proxy_snps.txt", outcome, ou
 ```
 
 ## Harmonize Exposure - Outcome Datasets
+Finally, the effect of a SNP on an outcome and exposure must be harmonised to be relative to the same allele. We also specify to infer the positive strand alleles, using allele frequencies for palindromes rather then removing [palindromic variants](https://mr-dictionary.mrcieu.ac.uk/term/palindrome).  
 
 ```{r}
 #| label: harmonize
@@ -279,6 +284,7 @@ mr_dat <- harmonise_data(exposure_dat, outcome_dat, action = 2) %>% as_tibble() 
 
 ```
 
+
 ```{r}
 #| label: export_harmonized_data
 #| code-fold: true
@@ -287,6 +293,22 @@ mr_dat <- harmonise_data(exposure_dat, outcome_dat, action = 2) %>% as_tibble() 
 #| error: false
 #| message: false
 #| eval: false
+#| echo: false
 
 write_csv(mr_dat, 'data/harmonized_data.csv')
 ```
+
+And now we have a final harmonized dataset that can be used in our downstream MR analyses
+```{r}
+#| label: display
+#| code-fold: true
+#| code-summary: Display 
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+
+read_csv('data/harmonized_data.csv') %>% rmarkdown::paged_table()
+
+```
+

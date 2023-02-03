@@ -11,11 +11,14 @@ book:
   sharing: [twitter]
   chapters:
     - index.qmd
-    - scripts/intro.qmd
-    - scripts/sumstats.qmd
+    - part: scripts/intro.qmd
+      chapters:
+      - scripts/phenotypes.qmd
+      - scripts/sumstats.qmd
     - part: scripts/methods.qmd
       chapters:
         - scripts/mr_harmonization.qmd
+        - scripts/mr.qmd
     - scripts/references.qmd
 
   

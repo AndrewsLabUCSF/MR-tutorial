@@ -1,0 +1,108 @@
+# Phenotypes
+The following genome-wide association studies (GWAS) are used as example traits for each of the MR methods covered in this tutorial. 
+
+```{r}
+#| label: packages
+#| code-fold: true
+#| code-summary: Load R Packages
+#| warning: false
+#| error: false
+#| message: false
+
+library(tidyverse)    # Data wrangling 
+library(TwoSampleMR)  # MR 
+library(ggman)
+
+# Define column types for summary statistics
+coltypes = cols(
+  ID = col_character(),
+  CHROM = col_double(),
+  POS = col_double(),
+  REF = col_character(),
+  ALT = col_character(),
+  AF = col_double(),
+  TRAIT = col_character(),
+  BETA = col_double(),
+  SE = col_double(),
+  Z = col_double(),
+  P = col_double(),
+  N = col_double(),
+  OR = col_double(),
+  OR_L95 = col_double(),
+  OR_U95 = col_double(),
+  DIR = col_character(),
+  G1000_ID = col_character(),
+  G1000_VARIANT = col_character(),
+  DBSNP_ID = col_character(),
+  DBSNP_VARIANT = col_character(),
+  OLD_ID = col_character(),
+  OLD_VARIANT = col_character()
+)
+
+```
+
+## Lipids
+A GWAS of low-density lipoprotein (LDL) cholesterol, high-density lipoprotein (HDL) cholesterol, triglycerides and total cholesterol levels conducted in 188,577 individuals that identified 157 loci were associated with lipid levels.
+
+Willer, C. J. et al. Discovery and refinement of loci associated with lipid levels. [Nat Genet 45, 1274–83 (2013)](https://www.nature.com/articles/ng.2797).
+
+Summary statistics 
+
+1. [LDL Cholesterol](https://www.dropbox.com/s/5lqbx2dv8h5r8fc/Willer2013ldl.chrall.CPRA_b37.tsv.gz?dl=0)
+2. [HDL Cholesterol](https://www.dropbox.com/s/l4r8zcsdpg46c12/Willer2013hdl.chrall.CPRA_b37.tsv.gz?dl=0)
+3. [Triglycerides](https://www.dropbox.com/s/7vhuaczrvt2nstm/Willer2013tg.chrall.CPRA_b37.tsv.gz?dl=0)
+4. [Total cholesterol](https://www.dropbox.com/s/ovc7wut33wekzga/Willer2013tc.chrall.CPRA_b37.tsv.gz?dl=0) 
+
+```{r}
+#| label: tc_manhattan
+#| code-fold: true
+#| code-summary: Total Cholesterol Manhattan
+#| warning: false
+#| error: false
+#| message: false
+#| eval: true
+
+tc_path = "resources/Willer2013tc.chrall.CPRA_b37.tsv.gz"
+tc_ss <- read_tsv(tc_path, comment = "##", col_types = coltypes, 
+                        col_select = c(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N, TRAIT))
+
+# Filter on p < 0.5 to reduce compute
+ggman(filter(tc_ss, P < 0.05 & P > 1e-100), snp = "DBSNP_ID", bp = "POS", chrom = "CHROM", pvalue = "P", relative.positions = TRUE) + 
+  theme_classic()
+
+```
+
+## Alzheimer's disease 
+A GWAS of Alzheimer’s disease conducted in 94,437 indivudles by the International Genomics Alzheiemr’s Project that Identified 20 genome-wide signiﬁcant loci. 
+
+Kunkle, B. W. et al. Genetic meta-analysis of diagnosed Alzheimer’s disease identifies new risk loci and implicates Aβ, tau, immunity and lipid processing. [Nat Genet 51, 414–430 (2019)](https://www.nature.com/articles/s41588-019-0358-2).
+
+
+Summary statistics 
+
+1. [Late-onset Alzheimer's disease](https://www.dropbox.com/s/2s6g8b0y14h19l7/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz?dl=0) 
+
+
+```{R}
+#| label: AD_manhattan_plot
+#| code-fold: true
+#| code-summary: AD Manhattan Plot
+#| warning: false
+#| error: false
+#| message: false
+
+AD_path = "resources/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz"
+AD_ss <- read_tsv(AD_path, comment = "##",  col_types = coltypes, 
+                       col_select = c(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N, TRAIT))
+
+# Filter on p < 0.5 to reduce compute
+ggman(filter(AD_ss, P < 0.05 & P > 1e-100), snp = "DBSNP_ID", bp = "POS", chrom = "CHROM", pvalue = "P", relative.positions = TRUE) + 
+  theme_classic()
+
+```
+
+## SumStat Standardization
+GWAS summary statistics were standardized using a Snakemake Workflow that (1) aligns effect alleles to the alternate allele on the forward strand of the human genome reference build and normalizes indels, (2) annotates variants with marker names using chromosome:position:ref:alt, 1000 Genomes rsIDs (phase III), and database-single-nucleotide polymorphism (dbSNP) rsIDs (b151) (3) where allele frequencies are missing, annotates allele frequencies using non-Finnish Europeans from gnomAD (version 2.1), and (4) convert summary statistics to VCF and TSV ﬁles. 
+
+Andrews, S. J. et al. Causal Associations Between Modifiable Risk Factors and the Alzheimer’s Phenome. [Ann Neurol 89, 54–65 (2021)](https://dx.doi.org/10.1002/ana.25918).
+  

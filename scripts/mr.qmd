@@ -1,0 +1,291 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# TwoSampleMR
+
+```{r}
+#| label: packages
+#| code-fold: true
+#| code-summary: Load R Packages
+#| warning: false
+#| error: false
+#| message: false
+
+library(tidyverse)    # Data wrangling 
+library(TwoSampleMR)  # MR 
+library(gt)
+# library(LDlinkR)      # LD and proxy snps
+# library(RadialMR)     # Radial MR sensetivity analysis 
+# library(phenoscanner)
+
+```
+
+## Methods
+### Tools & Publications 
+R, [TwoSampleMR](https://github.com/MRCIEU/TwoSampleMR), [MendelianRandomization](https://cran.r-project.org/web/packages/MendelianRandomization/index.html)
+
+- Hemani, G. et al. The MR-Base platform supports systematic causal inference across the human phenome. [Elife 7, e34408 (2018)](https://elifesciences.org/articles/34408).
+- Yavorska, O. O. & Burgess, S. MendelianRandomization: an R package for performing Mendelian randomization analyses using summarized data. Int J Epidemiol 46, dyx034 (2017).
+
+**IVW:** The simplest method for MR causal effect estimation is the inverse variance weighted (IVW) meta-analysis of each genetic instrument's Wald ratio. This is similar to conducting a weighted regression of SNP-exposure effects against SNP-outcome effects, with the regression line passing through the origin. Fixed effects IVW is the most powerful method for MR analysis and is widely accepted as the primary method. However, it assumes that there is no horizontal pleiotropy and is sensitive to violations of MR assumptions. Random effects IVW relaxes this assumption by allowing each SNP to have a different mean effect, providing an unbiased estimate if horizontal pleiotropy is present in a balanced manner. 
+
+**Maximum likelihood:** The causal effect is estimated by direct maximization of the liklihood given the SNP-exposure and SNP-outcome effects and assuming a linear relationship between the exposure and outcome. May provide more reliable results in the presence of measurement error in the SNP-exposure effects, but assumes that there is no heterogeneity or horizontal pleiotropy.
+
+**MR-Egger:** The Inverse Variance Weighted (IVW) method can be modified to account for horizontal pleiotropy by including a non-zero intercept. This allows for an estimation of net horizontal pleiotropic effects even if they are not balanced or directional. However, this approach assumes that the horizontal pleiotropic effects are uncorrelated with the SNP-exposure effects, known as the InSIDE assumption. Despite this, the MR-Egger method may have lower precision, leading to a reduction in statistical power to detect causal relationships.      
+
+**Mode Based Estimators:** Clusters SNPs into groups based on similarity of their causal effects and returns the causal estimates based on the cluster with the largest number of SNPs. Weighting each SNPs contribution to the clustering by the inverse variance of its outcome of its outcome effect can be also be used. Returns an unbiased causal estimate when all the SNPs in the largest cluster are valid instruments.  
+
+**Median Based Estimators:** Estimating the causal effect by taking the median effect of all avaliable SNPs allows for only half the SNPs needing to be valid instruments. Weighting the contribution of each SNP by the inverse variance of its association with the outcome allows for stronger SNPs to contribute more towards the estimate. 
+
+
+## Perform MR analysis 
+```{r}
+#| label: import
+#| code-fold: true
+#| code-summary: Import Data
+#| warning: false
+#| error: false
+#| message: false
+
+mr_dat <- read_csv('data/harmonized_data.csv')
+```
+
+```{r}
+#| label: MR
+#| code-fold: true
+#| code-summary: MR analysis
+#| warning: false
+#| error: false
+#| message: false
+#| cache: true
+
+mr_res <- mr(mr_dat, method_list = c(
+  "mr_two_sample_ml",  "mr_egger_regression", "mr_egger_regression_bootstrap",
+  "mr_simple_median", "mr_weighted_median", "mr_penalised_weighted_median", 
+  "mr_ivw_fe", "mr_ivw_mre",
+  "mr_simple_mode", "mr_weighted_mode", "mr_weighted_mode_nome", "mr_simple_mode_nome"
+  ))
+
+res_single <- mr_singlesnp(mr_dat, all_method = c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode")) %>% as_tibble()
+
+```
+
+In the fixed effects IVW analysis, higher genetically predicted total cholesteroal levels are associated with increased risk of Alzheimer's disease. However, the majority of our pleiotropy robust methods are non-significant, suggesting that the causal effects may be biased.   
+
+```{r}
+#| label: MR res
+#| code-fold: true
+#| code-summary: MR analysis results
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+
+mr_res %>%
+  select(method, nsnp, b, se, pval) %>%
+  gt() %>%
+  fmt_number(
+    columns = c("b", "se")
+  ) %>%
+  fmt_number(
+    columns = pval,
+    rows = pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = pval,
+    rows = pval <= 0.001,
+    decimals = 1
+  ) 
+```
+
+The relationship between SNP effects on the exposure and SNP effects on the outcome can be visualized through a scatter plot. The slopes of the lines correspond to the estimated causal effect for each method. 
+
+```{r}
+#| label: scatter_plot
+#| code-fold: true
+#| code-summary: MR Scatter Plot
+#| warning: false
+#| error: false
+#| message: false
+#| echo: true
+
+scatter_p <- mr_scatter_plot(mr_res, mr_dat) 
+scatter_out_p <- scatter_p[[1]] + theme_bw() + 
+  guides(color=guide_legend(ncol =1)) + 
+  theme(
+    text = element_text(size = 8), 
+  )
+
+scatter_out_p
+
+```
+
+
+Forest plots can be used to display the Wald ratio for single SNPs and their combined effects. 
+
+```{r}
+#| label: forrest_plot
+#| code-fold: true
+#| code-summary: MR Forrest Plot
+#| warning: false
+#| error: false
+#| message: false
+#| echo: true
+#| fig-height: 10
+
+forrest_p <- mr_forest_plot(res_single)
+forrest_p[[1]]
+
+```
+
+## Diagnostics
+Diagnostics and sensetivity analyses are used to evaluate if the causal estimates are robust to violations of MR underlying assumptions. 
+
+### Pleiotropy
+The intercept term in MR-Egger regression can provide an indication of the presence of [directional horizontal pleiotropy](https://mr-dictionary.mrcieu.ac.uk/term/horizontal-pleiotropy/), and help to determine the robustness of the MR results. Directional horizontal pleiotropy refers to the situation where a genetic variant used as an instrumental variable in a Mendelian randomization (MR) study influences the exposure and outcome in the same direction. This can result in biased estimates of the causal effect of the exposure on the outcome, and compromise the validity of the MR results.
+
+We observe that the MR-Egger regression intercept for Total cholesterol onto AD is significant, suggesting that the IVW causal estimate is biased by directional horizontal pleiotropy. 
+
+```{r}
+#| label: pleiotropy
+#| code-fold: true
+#| code-summary: Pleiotropy
+#| warning: false
+#| error: false
+#| message: false
+#| eval: true
+
+res_pleio <- mr_pleiotropy_test(mr_dat)
+
+res_pleio %>%
+  select(-id.exposure, -id.outcome, -outcome, -exposure) %>%
+  gt() %>%
+  fmt_number(
+    columns = c('egger_intercept', 'se')
+  ) %>%
+  fmt_number(
+    columns = pval,
+    rows = pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = pval,
+    rows = pval <= 0.001,
+    decimals = 1
+  )
+
+```
+
+### Heterogeneity
+Heterogeneity refers to the variability or diversity in the relationship between an exposure variable and an outcome variable across different genetic variants that are used as instrumental variables. Heterogeneity can arise due to several factors, including differences in the strength of the genetic associations with the exposure and outcome, differences in the direction of effect, or differences in the way that the genetic variants interact with other variables that may confound the relationship. Heterogeneity can pose a challenge for the validity of the MR results, as it may indicate that the assumption of a consistent relationship between the exposure and outcome across different SNPs is not met. If heterogeneity is present, it can indicate that the underlying causal relationship between the exposure and outcome is complex and cannot be captured by a single SNP or set of SNPs.
+
+We can estimate heterogeneity using [Cochran's Q Test](https://mr-dictionary.mrcieu.ac.uk/term/cochrans-q/). We observe that there is significant heterogeneity in the IVW and MR-Egger analysis, further highlighting  that the IVW causal estimates are likely biased. 
+
+
+```{r}
+#| label: Heterogeneity
+#| code-fold: true
+#| code-summary: Heterogeneity
+#| warning: false
+#| error: false
+#| message: false
+#| eval: true
+
+# Heterogeneity statistics 
+res_het <- mr_heterogeneity(mr_dat, method_list = c("mr_egger_regression", "mr_ivw"))
+
+res_het %>%
+  select(-id.exposure, -id.outcome, -outcome, -exposure) %>%
+  gt() %>%
+  fmt_number(
+    columns = Q
+  ) %>%
+  fmt_number(
+    columns = Q_pval,
+    rows = Q_pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = Q_pval,
+    rows = Q_pval <= 0.001,
+    decimals = 1
+  )
+
+```
+
+Funnel plots in which the estimate for each SNP is plotted against its precision can be used to visually inspect for horizontal pleitropy, with asymmetry indicative of invalid instruments.
+
+```{r}
+#| label: Funnel
+#| code-fold: true
+#| code-summary: Funnel plots
+#| warning: false
+#| error: false
+#| message: false
+#| eval: true
+
+funnel_p <- mr_funnel_plot(res_single)
+funnel_out_p <- funnel_p[[1]] + theme_bw() + 
+  guides(color=guide_legend(ncol =1)) + 
+  theme(
+    text = element_text(size = 8), 
+  )
+
+funnel_out_p
+```
+
+### Outliers
+Leave-one-out analysis can be used to determine if a MR causal estimate is driven or biased by a single SNP that might have a particularly large horizontal pleiotropic effect. The MR causal effect is re-estimated by sequentially droping one SNP at a time. 
+
+We observe dramatic changes in the MR causal estimates when two SNPs - rs7412 and rs75687619 - are droped from the analysis. This suggests that the IVW estimate is particularly sensitive to the inclusion of these variants and that they are potentially outliers.   
+
+```{r}
+#| label: diagnostics
+#| code-fold: true
+#| code-summary: Leave-one-out
+#| warning: false
+#| error: false
+#| message: false
+#| eval: true
+#| fig-height: 10
+
+# Leave-one-out analysis 
+res_loo <- mr_leaveoneout(mr_dat, method = mr_ivw_fe) %>% as_tibble()
+
+loo_p <- mr_leaveoneout_plot(res_loo)
+loo_p[[1]]
+```
+
+## Summary
+In the IVW analysis we observed that higher genetically predicted total cholesterol levels were causaly associated with an increased risk of Alzheimer's disease. However, the majority of our sensitivity analysis are non-significant suggesting that our IVW estimated is biased. Furthermore, while the MR-Egger causal estimate is significant, this is likely due to violations of the InSIDE assumption. The robustness of our causal estimate is further called into question by the presense of significant heterogeneity, horizontal pleitropy, and outliers. 
+
+```{r}
+#| label: export_results
+#| code-fold: true
+#| code-summary: export MR results
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+#| echo: false
+
+# CSV
+write_csv(res_het, 'results/mr_het_res.csv')
+write_csv(res_pleio, 'results/mr_plt_res.csv')
+write_csv(mr_res, 'results/mr_results.csv')
+
+# Plots
+ggsave('results/plots/mr_scatter.png', plot = scatter_out_p, units = 'in', height = 4, width = 9)
+ggsave('results/plots/mr_loo.png', plot = loo_p[[1]], units = 'in', height = 9, width = 9)
+ggsave('results/plots/mr_forrest.png', plot =forrest_p[[1]] + theme(text = element_text(size = 8)), units = 'in', height = 9, width = 9)
+ggsave('results/plots/mr_funnel.png', plot = funnel_out_p, units = 'in', height = 4, width = 9)
+ggsave('results/plots/mr_radial.png', plot = radial_p, units = 'in', height = 4, width = 9)
+```
+
+
+
+
+  
