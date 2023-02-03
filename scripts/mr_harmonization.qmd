@@ -187,7 +187,7 @@ exposure_clump <- exposure %>%
 exposure_dat <- exposure_clump
 ```
 ::: {.callout-note}
-Typically you would filter to only genome-wide significant SNPs (`pval.exposure < 5e-8`). Here we are retaining all independent SNPs with pval.exposure < 0.01 to demonstrate how to identify proxy variants, as all of our GWS SNPs are present in the outcome GWAS.
+Typically, in a Two-Sample MR analysis, one would only consider genome-wide significant SNPs (SNPs with `pval.exposure < 5e-8`). However, in this demonstration, all independent SNPs with `pval.exposure < 0.01` are retained to showcase how to identify proxy variants, as all of the genome-wide significant SNPs are also present in the outcome GWAS.
 :::
 
 ## Outcome datasets
@@ -282,10 +282,21 @@ Finally, the effect of a SNP on an outcome and exposure must be harmonised to be
 #| eval: false
 
 mr_dat <- harmonise_data(exposure_dat, outcome_dat, action = 2) %>% as_tibble() %>%
+#  mutate(
+#    apoe_region = case_when(
+#      chr.outcome == 19 & between(pos.outcome, 44912079, 45912079) ~ TRUE,
+#      TRUE ~ FALSE
+#    ), 
+#    gws.outcome = ifelse(pval.outcome < 5e-8, TRUE, FALSE), 
+#   mr_keep = ifelse(mr_keep == FALSE | apoe_region == TRUE | gws.outcome == TRUE, FALSE, TRUE)
+#  )
   filter(pval.exposure < 5e-8)
 
 ```
 
+::: {.callout-note}
+The variable mr_keep is used to determine the SNPs to be included in the MR analysis. It is recommended to exclude variants with `pval.outcome < 5e-8` as they violate the [exclusion restriction assumption](https://mr-dictionary.mrcieu.ac.uk/term/exclusion-restriction). For studies involving Alzheimer's disease, variants in the _APOE_ region (GRCh37 - CHR: 19, BP: 44912079-45912079) should also be removed due to its large effect size and pleiotropic nature. However, in this tutorial, this step is not performed to demonstrate how causal estimates can be influenced by horizontal pleiotropy.
+:::
 
 ```{r}
 #| label: export_harmonized_data

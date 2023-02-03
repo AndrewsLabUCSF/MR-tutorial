@@ -19,6 +19,7 @@ book:
       chapters:
         - scripts/mr_harmonization.qmd
         - scripts/mr.qmd
+        - scripts/radial_mr.qmd
     - scripts/references.qmd
 
   

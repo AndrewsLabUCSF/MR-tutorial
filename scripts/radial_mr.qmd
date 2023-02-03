@@ -1,0 +1,386 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# Radial-MR
+
+```{r}
+#| label: packages
+#| code-fold: true
+#| code-summary: Load R Packages
+#| warning: false
+#| error: false
+#| message: false
+
+library(tidyverse)    # Data wrangling 
+library(TwoSampleMR)  # MR 
+library(gt)
+library(RadialMR)     # Radial MR sensetivity analysis
+library(phenoscanner)
+
+```
+
+## Methods
+### Tools & Publications 
+R, [RadialMR](https://github.com/WSpiller/RadialMR)
+
+- Bowden, J., et al., Improving the visualization, interpretation and analysis of two-sample summary data Mendelian randomization via the Radial plot and Radial regression. [International Journal of Epidemiology, 2018. 47(4): p. 1264-1278.](https://academic.oup.com/ije/article/47/4/1264/5046668)
+
+**Radial MR:** Produces radial plots and performs radial regression for inverse variance weighted and MR-Egger regression models. These plots have the advantage of improving the visual detection of outliers, as well as being coding invariant. The contribution of each individule SNP to the Cochran’s Q statistic is quantified, with SNPs that have a large contribution been classified as outliers based on significance level selected by the user - typically a bonferonni correction. Outliers can be removed for downstream analysis. 
+
+## Perform Radial MR
+```{r}
+#| label: import
+#| code-fold: true
+#| code-summary: Import Data
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+
+mr_dat <- read_csv('data/harmonized_data.csv')
+```
+
+The RadialMR package requires a different input data format to that of TwoSampleMR, so we first use `TwoSampleMR::dat_to_RadialMR()` to convert our `TwoSampleMR` harmonized data to the formate required by `RadialMR`. 
+```{r}
+#| label: radial MR
+#| code-fold: true
+#| code-summary: Radial MR
+#| warning: false
+#| error: false
+#| message: false
+#| echo: true
+
+# Format data 
+radial_dat <- mr_dat %>% filter(mr_keep == T) %>% dat_to_RadialMR()
+rmr_dat <- radial_dat$TC.AD
+
+# Run Radial MR
+bonff = 0.05/nrow(rmr_dat) # Bonferonni Correction
+radial_ivw_res <- ivw_radial(rmr_dat, alpha = bonff) 
+radial_egger_res <- egger_radial(rmr_dat, alpha = bonff) 
+```
+
+As with our core MR methods, we observed that the Radial-MR causal estimates indicated that total cholesteroal is causaly associated with an increased risk of AD, however, there is significant heterogenity.   
+```{r}
+#| label: radial_MR_tab
+#| code-fold: true
+#| code-summary: Radial MR
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+
+bind_rows(
+  # IVW Estimates
+  radial_ivw_res$coef %>%
+    as.data.frame() %>%
+    rownames_to_column(.) %>%
+    as_tibble() %>%
+    mutate(method = "IVW") %>%
+    janitor::clean_names() %>%
+    rename(b = estimate, se = std_error, statistic = t_value, p = pr_t) %>%
+    relocate(method),
+  
+  # IVW Q
+  tribble(
+    ~method, ~rowname, ~statistic, ~p,
+    'IVW', 'Q-Statistic', radial_ivw_res$qstatistic, pchisq(radial_ivw_res$qstatistic, radial_ivw_res$df, lower.tail = FALSE)
+  ),
+  
+  # Egger estimate
+  radial_egger_res$coef %>%
+    as.data.frame() %>%
+    rownames_to_column(.) %>%
+    as_tibble() %>%
+    mutate(method = "Egger") %>%
+    janitor::clean_names() %>%
+    rename(b = estimate, se = std_error, statistic = t_value, p = pr_t) %>%
+    relocate(method), 
+  
+  # Egger Q
+  tribble(
+    ~method, ~rowname, ~statistic, ~p,
+    'Egger', 'Q-Statistic', radial_egger_res$qstatistic, pchisq(radial_egger_res$qstatistic, radial_egger_res$df, lower.tail = FALSE)
+  ),
+
+) %>%
+  gt(
+    groupname_col = "method"
+  ) %>%
+  fmt_number(
+    columns = c(b, se, statistic)
+  ) %>%
+  fmt_number(
+    columns = p,
+    rows = p > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = p,
+    rows = p <= 0.001,
+    decimals = 1
+  )
+
+```
+
+Examining the Radial Plots we also further observe a number of variants were classifed as outliers, which are determined with respect to their contribution to global heterogeneity as quantified by Cochran's Q-statistic and using a a bonferonni corrected significance threshold.
+
+```{r}
+#| label: radial_plots
+#| code-fold: true
+#| code-summary: Radial Plots
+#| warning: false
+#| error: false
+#| message: false
+#| echo: true
+
+ivw_radial_p <- plot_radial(radial_ivw_res, radial_scale = F, show_outliers = F)
+egger_radial_p <- plot_radial(radial_egger_res, radial_scale = F, show_outliers = F)
+
+cowplot::plot_grid(
+  ivw_radial_p + coord_fixed(ratio=0.25) + theme(legend.position = 'bottom'), 
+   egger_radial_p + theme(legend.position = 'bottom'), 
+  align = 'h'
+)
+
+```
+
+The IVW Radial MR method identified six variants as potential outliers. We can query [PhenoScanner](http://www.phenoscanner.medschl.cam.ac.uk/) to obtain further information on these SNPs (and variants they are in LD with) including what other traits they have been associated with. 
+```{r}
+#| label: outliers
+#| code-fold: true
+#| code-summary: Remove outliers
+#| warning: false
+#| error: false
+#| message: false
+
+# Phenoscanner 
+phewas_dat <- phenoscanner(
+  snpquery=radial_ivw_res$outliers$SNP, 
+  proxies='EUR', 
+  r2 = 0.8
+  ) 
+
+radial_ivw_res$outliers %>% 
+  left_join(filter(phewas_dat$snps, snp == rsid), by = c("SNP" = "snp")) %>%
+  select(SNP, Q_statistic, p.value, hg19_coordinates, a1, a2, hgnc) %>% 
+  DT::datatable()
+
+```
+
+Examining the PheWAS results, we can see that three of the outliers (rs7412, rs7568769, and rs8103315) are all located within the _APOE_ region and associated with Alzheimer's disease. These are the same variants that were previously observed to be driving the IVW causal estimates from the Leave-one-out anlaysis. 
+```{r}
+#| label: phewas
+#| code-fold: true
+#| code-summary: PheWAS results
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+
+phewas_dat$results %>% 
+  DT::datatable()
+
+```
+
+Now that have identified outliers, we can re-run our core MR methods with outliers removed. We join the radial MR results to our harmonized dataset and modify the `mr_keep` variable to flag outliers for removal. 
+```{r}
+#| label: rm_outliers
+#| code-fold: true
+#| code-summary: Remove outliers
+#| warning: false
+#| error: false
+#| message: false
+#| echo: true
+
+## Modify the mrkeep variable to flag variants as outliers from radial MR for removal
+mr_dat_outlier <- mr_dat %>%
+  left_join(radial_ivw_res$dat) %>%
+  mutate(
+     mr_keep = case_when(
+       Outliers == "Outlier" ~ FALSE, 
+       TRUE ~ mr_keep
+     )
+  )
+```
+
+After removing outliers, the IVW estimates are no longer significant. 
+```{r}
+#| label: mr_wo_outliers
+#| code-fold: true
+#| code-summary: MR analysis w/o outliers
+#| warning: false
+#| error: false
+#| message: false
+#| echo: true
+
+# Standard MR
+mr_res <- mr(mr_dat, method_list = c(
+  c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode")
+  ))
+
+## MR analysis 
+mr_res_outlier <- mr(mr_dat_outlier, method_list = c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode"))
+
+# Heterogeneity statistics 
+mr_het_outlier <- mr_heterogeneity(mr_dat_outlier, method_list = c("mr_egger_regression", "mr_ivw"))
+
+# Horizontal pleitropy
+mr_plt_outlier <- mr_pleiotropy_test(mr_dat_outlier)
+
+# Radial MR 
+radial_dat_outlier <- mr_dat_outlier %>% filter(mr_keep == T) %>% dat_to_RadialMR()
+radial_res_outlier <- ivw_radial(radial_dat_outlier$TC.AD, alpha = 0.05/nrow(radial_dat_outlier$TC.AD)) 
+
+bind_rows(
+  mr_res %>% mutate(model = "w/ Outliers"), 
+  mr_res_outlier %>% mutate(model = "w/o Outliers")) %>%
+  select(model, method, nsnp, b, se, pval) %>%
+  gt(
+    groupname_col = "model"
+  ) %>%
+  fmt_number(
+    columns = c("b", "se")
+  ) %>%
+  fmt_number(
+    columns = pval,
+    rows = pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = pval,
+    rows = pval <= 0.001,
+    decimals = 1
+  ) 
+
+```
+
+This is even more apparant when inspect the scatter and radial plots before and after outlier removal. 
+```{r}
+#| label: mr_plot_wo_outliers
+#| code-fold: true
+#| code-summary: MR plots w/o outliers
+#| warning: false
+#| error: false
+#| message: false
+#| echo: true
+
+# Plots
+scatter_p <- mr_scatter_plot(mr_res, mr_dat) 
+scatter_out_p <- scatter_p[[1]] + theme_bw() + 
+  guides(color=guide_legend(nrow =1)) + 
+  labs(title = "w/ outliers") +
+  theme(
+    text = element_text(size = 8), 
+    legend.position = 'bottom'
+  )
+
+scatter_outlier_p <- mr_scatter_plot(mr_res_outlier, mr_dat_outlier)
+
+scatter_outlier_out_p <- scatter_outlier_p[[1]] + theme_bw() + 
+  guides(color=guide_legend(nrow =1)) + 
+  labs(title = "w/o outliers") +
+  theme(
+    text = element_text(size = 8), 
+    legend.position = 'bottom'
+  )
+
+radial_outlier_p <- plot_radial(radial_res_outlier, radial_scale = F, show_outliers = F)
+
+cowplot::plot_grid(
+  scatter_out_p + theme(legend.position = 'none'), 
+  scatter_outlier_out_p + theme(legend.position = 'none'), 
+  ivw_radial_p + coord_fixed(ratio=0.25) + theme(legend.position = 'none') + labs(title = "w/ outliers"),
+  radial_outlier_p + coord_fixed(ratio=0.2) + theme(legend.position = 'none') + labs(title = "w/o outliers") 
+)
+
+```
+
+
+## The APOE region
+In the initial analysis, six SNPs were identified as potential outliers by Radial-MR. Three of these SNPs were located in the _APOE_ region, known for its large effect size and pleiotropic nature, and were clear outliers based on their Q-statistics. In contrast the other three variants were located elsewhere on the genome and had significanlty smaller Q-statistics. It is possible that the large contribution of the individules APOE variants to the global heterogenity statistcs could be biasing the Q-statistics of other variants.  
+
+```{r}
+#| label: rm_apoe
+#| code-fold: true
+#| code-summary: Radial MR w/o APOE
+#| warning: false
+#| error: false
+#| message: false
+#| echo: true
+
+mr_dat_wo_apoe <- mr_dat %>%
+ mutate(
+   apoe_region = case_when(
+     chr.outcome == 19 & between(pos.outcome, 44912079, 45912079) ~ TRUE,
+     TRUE ~ FALSE
+   ),
+   gws.outcome = ifelse(pval.outcome < 5e-8, TRUE, FALSE),
+   mr_keep = case_when(
+       apoe_region == TRUE ~ FALSE, 
+       gws.outcome == TRUE ~ FALSE, 
+       TRUE ~ mr_keep
+     )
+ )
+
+# Radial MR 
+radial_dat_wo_apoe <- mr_dat_wo_apoe %>% filter(mr_keep == T) %>% dat_to_RadialMR()
+radial_res_wo_apoe <- ivw_radial(radial_dat_wo_apoe$TC.AD, alpha = 0.05/nrow(radial_dat_wo_apoe$TC.AD)) 
+radial_wo_apoe_p <- plot_radial(radial_res_wo_apoe, radial_scale = F, show_outliers = F)
+```
+
+When the APOE region was removed before conducting radial MR, only two SNPs were now flagged as outliers. These were rs6504872, which was still considered an outlier after removing the APOE region, and a new variant, rs9391858, which emerged as an outlier after this step. This suggests that including the _APOE_ region can bias the Q-statistics of other variants.
+
+```{r}
+#| label: rm_apoe_plot
+#| code-fold: true
+#| code-summary: Radial MR Plots w/o APOE
+#| warning: false
+#| error: false
+#| message: false
+#| echo: true
+
+cowplot::plot_grid(
+  ivw_radial_p + coord_fixed(ratio=0.25) + theme(legend.position = 'none') + labs(title = "w/ APOE"),
+  radial_wo_apoe_p + coord_fixed(ratio=0.2) + theme(legend.position = 'none') + labs(title = "w/o APOE"), 
+  align = 'h'
+)
+
+```
+
+
+## Summary
+Radial-MR provides an improved visual interpretion of MR analyses and displayes data points with large contributions to Cochran’s Q statistic that are likely to be outliers. Based on this statistical criterion, indivdual variants can be removed from downstream MR analyses to obtain more robust causal estitmates. However, care should be taken when adopting a strategy of removing all outliers until little or no heterogeneity remains. This is highlighted when considering the _APOE_ region, which caused additional variants to be classifed as outliers despite haveing moderate Q-statistics. Exclusion of a particular SNPs should additionaly be based on whether the SNP is associated with separate phenotypes that represent a pleiotropic pathways to the outcome.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

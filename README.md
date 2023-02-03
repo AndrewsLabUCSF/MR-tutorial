@@ -4,5 +4,5 @@ Mendelian randomization (MR) is a method used to infer causality between and exp
 
 These resources aim to provide a starting point for understanding the basic concepts and methods of MR, as well as the current best practices and software tools available for conducting MR studies. 
 
-See the [wiki](https://github.com/AndrewsLabUCSF/MR-tutorial/wiki) for additional information on the phenotypes of interest, the methods used, and a suggested reading list.  
+See the [tutorial](https://andrewslabucsf.github.io/MR-tutorial/) for additional information on the phenotypes of interest, the methods used, and a suggested reading list.  
   

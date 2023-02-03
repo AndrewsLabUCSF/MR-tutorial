@@ -206,6 +206,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <a href="../scripts/mr.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">TwoSampleMR</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../scripts/radial_mr.html" class="sidebar-item-text sidebar-link"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Radial-MR</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item">
@@ -413,7 +418,7 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Typically you would filter to only genome-wide significant SNPs (<code>pval.exposure &lt; 5e-8</code>). Here we are retaining all independent SNPs with pval.exposure &lt; 0.01 to demonstrate how to identify proxy variants, as all of our GWS SNPs are present in the outcome GWAS.</p>
+<p>Typically, in a Two-Sample MR analysis, one would only consider genome-wide significant SNPs (SNPs with <code>pval.exposure &lt; 5e-8</code>). However, in this demonstration, all independent SNPs with <code>pval.exposure &lt; 0.01</code> are retained to showcase how to identify proxy variants, as all of the genome-wide significant SNPs are also present in the outcome GWAS.</p>
 </div>
 </div>
 </section>
@@ -490,8 +495,29 @@ Note
 <details>
 <summary>Harmonize</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mr_dat <span class="ot">&lt;-</span> <span class="fu">harmonise_data</span>(exposure_dat, outcome_dat, <span class="at">action =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span> <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(pval.exposure <span class="sc">&lt;</span> <span class="fl">5e-8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#  mutate(</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">#    apoe_region = case_when(</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co">#      chr.outcome == 19 &amp; between(pos.outcome, 44912079, 45912079) ~ TRUE,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">#      TRUE ~ FALSE</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">#    ), </span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#    gws.outcome = ifelse(pval.outcome &lt; 5e-8, TRUE, FALSE), </span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   mr_keep = ifelse(mr_keep == FALSE | apoe_region == TRUE | gws.outcome == TRUE, FALSE, TRUE)</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#  )</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(pval.exposure <span class="sc">&lt;</span> <span class="fl">5e-8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The variable mr_keep is used to determine the SNPs to be included in the MR analysis. It is recommended to exclude variants with <code>pval.outcome &lt; 5e-8</code> as they violate the <a href="https://mr-dictionary.mrcieu.ac.uk/term/exclusion-restriction">exclusion restriction assumption</a>. For studies involving Alzheimer’s disease, variants in the <em>APOE</em> region (GRCh37 - CHR: 19, BP: 44912079-45912079) should also be removed due to its large effect size and pleiotropic nature. However, in this tutorial, this step is not performed to demonstrate how causal estimates can be influenced by horizontal pleiotropy.</p>
+</div>
 </div>
 <div class="cell">
 
