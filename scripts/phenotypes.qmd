@@ -1,3 +1,10 @@
+---
+output: html_document
+execute: 
+  freeze: auto
+editor_options: 
+  chunk_output_type: console
+---
 # Phenotypes
 The following genome-wide association studies (GWAS) are used as example traits for each of the MR methods covered in this tutorial. 
 

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.269">
+<meta name="generator" content="quarto-1.2.335">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -383,7 +383,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>The majority of Two-Sample MR methods use only independent genome-wide significant SNPs which need to be extracted from the full GWAS summary stats. LD clumping is performed to obtain independent SNPs. By default, <code>TwoSampleMR::clump_data()</code> performs a stringent LD clumping procedure using a 10Mb window with an r<sup>2</sup> of 0.001. Setting <code>clump_p1 = 1</code> and <code>clump_p2 = 1</code> will perform clumping on all available SNPs. As our GWAS summary statistics come from a population of European ancestry, we specify <code>EUR</code> as our reference panel.</p>
+<p>Two-Sample MR methods usually utilize only independent genome-wide significant SNPs. The process of extracting these SNPs from the full genome-wide association study (GWAS) summary statistics involves linkage disequilibrium (LD) clumping. TwoSampleMR provides a clumping function, TwoSampleMR::clump_data(), which performs a stringent clumping procedure with a default window size of 10Mb and an r<sup>2</sup> threshold of 0.001. Setting <code>clump_p1 = 1</code> and <code>clump_p2 = 1</code> will perform clumping on all available SNPs. The GWAS summary statistics used in this analysis are from a population of European ancestry, and therefore the EUR reference panel is specified.</p>
 <div class="cell">
 <details>
 <summary>LD clump exposure</summary>
@@ -496,7 +496,7 @@ Note
 <div class="cell">
 
 </div>
-<p>And now we have final harmonized dataset that can be used in our downstream MR analyses</p>
+<p>And now we have a final harmonized dataset that can be used in our downstream MR analyses</p>
 <div class="cell">
 <div class="cell-output-display">
 
