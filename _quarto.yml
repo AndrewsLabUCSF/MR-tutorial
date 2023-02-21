@@ -20,6 +20,7 @@ book:
         - scripts/mr_harmonization.qmd
         - scripts/mr.qmd
         - scripts/radial_mr.qmd
+        - scripts/mvmr.qmd
     - scripts/references.qmd
 
   

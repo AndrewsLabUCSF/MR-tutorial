@@ -1,5 +1,7 @@
 ---
 output: html_document
+execute: 
+  freeze: auto
 editor_options: 
   chunk_output_type: console
 ---
@@ -329,7 +331,7 @@ exp_snp_list <- full_join(
 
 exp1_unq_snps <- filter(exp_snp_list, !is.na(exposure.x) & is.na(exposure.y)) %>% nrow()
 exp2_unq_snps <- filter(exp_snp_list, !is.na(exposure.y) & is.na(exposure.x)) %>% nrow()
-both_unq_snp <- filter(exp_snp_list, !is.na(exposure.y) & !is.na(exposure.x)) %>% nrow()
+both_unq_snps <- filter(exp_snp_list, !is.na(exposure.y) & !is.na(exposure.x)) %>% nrow()
 
 ```
 
@@ -397,7 +399,7 @@ comb_exp_independent <- comb_exp %>% filter(SNP %in% clump_comb_exp$SNP)
 
 ```
 
-Due to the high correlation among genetic variants, the GWAS of HDL and LDL may identify loci in the same genomic region. After LD clumping on the smallest p-value from the exposures, we retained `r nrow(comb_exp_clump)` of the initial `r length(mvmr_snps)` SNPs, ensuring that we included only independent variants in the analysis.
+Due to the high correlation among genetic variants, the GWAS of HDL and LDL may identify loci in the same genomic region. After LD clumping on the smallest p-value from the exposures, we retained `r nrow(comb_exp_independent)` of the initial `r length(mvmr_snps)` SNPs, ensuring that we included only independent variants in the analysis.
 
 
 ```{r}
@@ -424,9 +426,9 @@ comb_exp_independent %>%
 *Extract exposures SNPs from the outcome GWAS.* This step involves extracting the SNPs that are associated with the exposures from the genome-wide association study of the outcome.
 
 ```{r}
-#| label: clump_exposures
+#| label: Extract_outcome_snps
 #| code-fold: true
-#| code-summary: Clump Combined Exposures
+#| code-summary: Extract Exposure SNPs from Outcome
 #| warning: false
 #| error: false
 #| message: false
@@ -451,9 +453,9 @@ One issue to be aware of is that 3 of the exposure SNPs are GWS for AD and are v
 :::
 
 ```{r}
-#| label: tab_clump
+#| label: tab_clump_outcome
 #| code-fold: true
-#| code-summary: table clump
+#| code-summary: table clumped outcome
 #| warning: false
 #| error: false
 #| message: false
@@ -517,13 +519,14 @@ mrdat <- harmonise_data(comb_exp, outcome_dat) %>%
 mvdat <- mv_harmonise_data(comb_exp, outcome_dat)
 ```
 
-```{r }
+```{r}
 #| label: export_harmonized_dat
 #| code-fold: true
 #| code-summary: Export MVMR datasets 
 #| warning: false
 #| error: false
 #| message: false
+#| eval: false
 
 write_csv(mrdat, 'data/harmonized_mvmr_uni.csv')
 write_rds(mvdat, 'data/harmonized_mvmr.rds')
@@ -531,6 +534,20 @@ write_rds(mvdat, 'data/harmonized_mvmr.rds')
 ```
 
 ## MVMR Analysis
+```{r}
+#| label: import_harmonized_dat
+#| code-fold: true
+#| code-summary: Import MVMR datasets 
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+#| eval: false
+
+mrdat <- read_csv('data/harmonized_mvmr_uni.csv')
+mvdat <- read_rds('data/harmonized_mvmr.rds')
+
+```
 
 ### TwoSampleMR
 Using the core univariable MR methods, we observed that higher genetically predicted LDL and HDL are associated with increased and reduced risk of AD respectively. However, as with total cholesterol levels we observe significant heterogeneity suggesting that the IVW estimates are likely to be biased.
@@ -543,6 +560,7 @@ Using the core univariable MR methods, we observed that higher genetically predi
 #| warning: false
 #| error: false
 #| message: false
+#| eval: false
 
 ## Univariate MR
 mr_res <- mr(mrdat, method_list = c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode"))
@@ -576,6 +594,7 @@ radial_res <- map(radial_dat, function(x){
 #| warning: false
 #| error: false
 #| message: false
+#| eval: false
 
 ## Res 
 mr_res %>%
@@ -641,6 +660,7 @@ plei_res %>%
 #| warning: false
 #| error: false
 #| message: false
+#| eval: false
 
 scatter_p <- mr_scatter_plot(mr_res, mrdat)
 
@@ -681,6 +701,7 @@ Extending these analyses into a multivariable framework we are able to determine
 #| warning: false
 #| error: false
 #| message: false
+#| eval: false
 
 mvmr_res <- mv_multiple(mvdat, plots = F)
 mvmr_res$result
@@ -695,6 +716,7 @@ mvmr_res$result
 #| warning: false
 #| error: false
 #| message: false
+#| eval: false
 
 ### Pleiotropy
 mvmr_res$result %>%
@@ -726,6 +748,7 @@ The MVMR R package can be used to perform multivariable Mendelian randomization 
 #| warning: false
 #| error: false
 #| message: false
+#| eval: false
 
 mvmr_dat <- cbind(mvdat$exposure_beta, 
         mvdat$exposure_se, 
@@ -753,6 +776,7 @@ pres <- pleiotropy_mvmr(r_input = F.data, gencov = 0)
 #| warning: false
 #| error: false
 #| message: false
+#| eval: false
 
 res_mvmr <- ivw_mvmr(r_input = F.data)
 
@@ -774,6 +798,13 @@ mvmr_out <- res_mvmr %>%
 
 ## RMVMR
 ```{r}
+#| label: RMVMR_res
+#| code-fold: true
+#| code-summary: Results for MVMR
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
 
 F.data_rmvmr <- format_rmvmr(BXGs = mvmr_dat[,c(2,3)],
                     BYG = mvmr_dat[,6],
@@ -789,7 +820,14 @@ rmvrm_p <- plot_rmvmr(F.data_rmvmr, res_rmvrm)
 ```
 
 ### MendelianRandomization & MVMRmode Package
-```{r MendelianRandomization}
+```{r}
+#| label: MendelianRandomization
+#| code-fold: true
+#| code-summary: Results for MVMR
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
 
 MRMVInputObject <- MendelianRandomization::mr_mvinput(
   bx = mvdat$exposure_beta, 
@@ -847,7 +885,13 @@ MRMV_wbe_df <- as_tibble(MRMV_wbe_res) %>%
 ```
 
 ```{r MRMV_out}
-
+#| label: MRMV_out
+#| code-fold: true
+#| code-summary: Results for MVMR
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
 
 MRMV_out <- bind_rows(
     MRMV_ivw_df, MRMV_egger_df, MRMV_wme_df, MRMV_wbe_df
