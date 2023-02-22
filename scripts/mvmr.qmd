@@ -27,7 +27,6 @@ library(RMVMR)
 library(gt)
 ```
 
-## Perform MR analysis 
 ```{r}
 #| label: functions
 #| code-fold: true
@@ -138,7 +137,10 @@ R, [MVMR](https://github.com/WSpiller/MVMR), [RMVMR](https://github.com/WSpiller
 
 **Multivariable MR:** Used to estimate the causal relationships between multiple exposures and a single outcome. It is particularly useful in situations where multiple exposures are related and have potential inter-related effects on the outcome of interest. MVMR can help to disentangle the complex relationships between these exposures and provide insights into their independent causal effects. Examples of situations where MVMR can be useful include the estimation of the independent effects of related risk factors such as lipid fractions on an outcome, or the assessment of the independent effects of a primary risk factor and a secondary mediator on a disease outcome. 
 
-## Import datasets
+## Harmonizing SumStats for MVMR
+MVMR involves the simultaneous use of multiple exposures as instrumental variables in the analysis of a single outcome. As such, harmonizing the exposure and outcome datasets for MVMR is a more complex process than in univariable MR as it requires conducting multiple clumping and proxy-variant procedures. The following is a step-by-step guide to harmonizing the exposure and outcome datasets for MVMR using LDL and HDL cholesterol levels as the exposures, and AD as the outcome.
+
+### Import datasets
 ```{r}
 #| label: ldl
 #| code-fold: true
@@ -246,9 +248,6 @@ outcome <- outcome_ss %>%
 
 ```
 
-## Harmonizing SumStats for MVMR
-MVMR involves the simultaneous use of multiple exposures as instrumental variables in the analysis of a single outcome. As such, harmonizing the exposure and outcome datasets for MVMR is a more complex process than in univariable MR as it requires conducting multiple clumping and proxy-variant procedures. The following is a step-by-step guide to harmonizing the exposure and outcome datasets for MVMR using LDL and HDL cholesterol levels as the exposures, and AD as the outcome:
-
 ### Exposures
 ```{r}
 #| label: clump
@@ -285,7 +284,7 @@ exposure2_clump <- exposure2 %>%
 exposure2_dat <- filter(exposure2_clump, pval.exposure < 5e-8)
 ```
 
-*Perform clumping to obtain independent genome-wide significant variants for each exposure.* This step involves identifying the SNPs that are independently associated with each exposure and are significant at the genome-wide level.
+**Perform clumping to obtain independent genome-wide significant variants for each exposure.** This step involves identifying the SNPs that are independently associated with each exposure and are significant at the genome-wide level.
 
 There are `r nrow(exposure1_dat)` and `r nrow(exposure2_dat)` independent genome-wide significant SNPS for LDL and HDL respectivly.
 
@@ -312,7 +311,7 @@ comb_exp <- bind_rows(
 )
 ```
 
-*Combine the exposure SNP lists and extract all the SNPs from each exposure.* This step combines the lists of SNPs for each exposure and extracts all the SNPs that are present in each exposure.
+**Combine the exposure SNP lists and extract all the SNPs from each exposure.** This step combines the lists of SNPs for each exposure and extracts all the SNPs that are present in each exposure.
 
 ```{r}
 #| label: exposure_snps
@@ -369,13 +368,13 @@ comb_exp_wide %>% count(LDL < 5e-8, HDL < 5e-8)  %>%
 
 ```
 
-*Identify proxy variants for any SNPs that are missing in each exposure.* This step involves identifying proxy variants for any SNPs that are not present in each exposure dataset. This is necessary to ensure that the exposure datasets are complete and that all relevant SNPs are included in the analysis.
+**Identify proxy variants for any SNPs that are missing in each exposure.** This step involves identifying proxy variants for any SNPs that are not present in each exposure dataset. This is necessary to ensure that the exposure datasets are complete and that all relevant SNPs are included in the analysis.
 
 ::: {.callout-note}
 There are no missing variants between the LDL &HDL SumStats, as such there is no need identify proxy variants
 :::
 
-*Perform LD clumping on the combined SNP list to retain indepdent SNPs.* This step is performed to reduce the risk of spurious results arising due to multi-collinearity by including correlated SNPs. LD clumping identifies lead SNPs in each locus and discards the remaining SNPs that are in linkage disequilibrium with them.
+**Perform LD clumping on the combined SNP list to retain indepdent SNPs.** This step is performed to reduce the risk of spurious results arising due to multi-collinearity by including correlated SNPs. LD clumping identifies lead SNPs in each locus and discards the remaining SNPs that are in linkage disequilibrium with them.
 
 ```{r}
 #| label: clump_exposures
@@ -386,7 +385,7 @@ There are no missing variants between the LDL &HDL SumStats, as such there is no
 #| message: false
 
 ## Do another round of LD clumping 
-clump_comb_exp<- comb_exp_wide %>% 
+clump_comb_exp <- comb_exp_wide %>% 
   clump_data(.,
   clump_kb = 10000,
   clump_r2 = 0.001,
@@ -399,7 +398,7 @@ comb_exp_independent <- comb_exp %>% filter(SNP %in% clump_comb_exp$SNP)
 
 ```
 
-Due to the high correlation among genetic variants, the GWAS of HDL and LDL may identify loci in the same genomic region. After LD clumping on the smallest p-value from the exposures, we retained `r nrow(comb_exp_independent)` of the initial `r length(mvmr_snps)` SNPs, ensuring that we included only independent variants in the analysis.
+Due to the high correlation among genetic variants, the GWAS of HDL and LDL may identify loci in the same genomic region. After LD clumping on the smallest p-value from the exposures, we retained `r nrow(clump_comb_exp)` of the initial `r length(mvmr_snps)` SNPs, ensuring that we included only independent variants in the analysis.
 
 
 ```{r}
@@ -422,8 +421,8 @@ comb_exp_independent %>%
 ```
 
 
-### Extract Outcomes
-*Extract exposures SNPs from the outcome GWAS.* This step involves extracting the SNPs that are associated with the exposures from the genome-wide association study of the outcome.
+### Outcome
+**Extract exposures SNPs from the outcome GWAS.** This step involves extracting the SNPs that are associated with the exposures from the genome-wide association study of the outcome.
 
 ```{r}
 #| label: Extract_outcome_snps
@@ -446,7 +445,7 @@ outcome_wo_snps <- anti_join(
 
 ```
 
-Of the `r nrow(comb_exp_independent)` exposures SNPs, `r nrow(outcome_clump)` are available in the AD SumStats - with 1 variant missing.
+Of the `r nrow(clump_comb_exp)` exposures SNPs, `r nrow(outcome_clump)` are available in the AD SumStats - with 1 variant missing.
 
 ::: {.callout-note}
 One issue to be aware of is that 3 of the exposure SNPs are GWS for AD and are violating the [exclusion restriction assumption](https://mr-dictionary.mrcieu.ac.uk/term/exclusion-restriction/).
@@ -475,7 +474,7 @@ comb_exp_independent %>%
 
 ```
 
-*Identify proxy variants for any SNPs that missing in the outcome.* This step involves identifying proxy variants for any SNPs that are not present in the outcome dataset. This is necessary to ensure that the outcome dataset is complete and that all relevant SNPs are included in the analysis.
+**Identify proxy variants for any SNPs that missing in the outcome.** This step involves identifying proxy variants for any SNPs that are not present in the outcome dataset. This is necessary to ensure that the outcome dataset is complete and that all relevant SNPs are included in the analysis.
 
 ```{r}
 #| label: outcome_proxies
@@ -500,7 +499,7 @@ outcome_dat <- munge_proxies("data/mvmr_proxy_snps.txt", outcome, outcome_clump)
 ```
 
 ### Harmonize
-*Harmonize exposure and outcome datasets.* In order to perform MR the effect of a SNP on an outcome and exposure must be harmonised to be relative to the same allele.
+**Harmonize exposure and outcome datasets.** In order to perform MR the effect of a SNP on an outcome and exposure must be harmonised to be relative to the same allele.
 
 ```{r}
 #| label: harmonize
@@ -550,9 +549,6 @@ mvdat <- read_rds('data/harmonized_mvmr.rds')
 ```
 
 ### TwoSampleMR
-Using the core univariable MR methods, we observed that higher genetically predicted LDL and HDL are associated with increased and reduced risk of AD respectively. However, as with total cholesterol levels we observe significant heterogeneity suggesting that the IVW estimates are likely to be biased.
-
-
 ```{r}
 #| label: TwoSampleMR_MR
 #| code-fold: true
@@ -560,7 +556,6 @@ Using the core univariable MR methods, we observed that higher genetically predi
 #| warning: false
 #| error: false
 #| message: false
-#| eval: false
 
 ## Univariate MR
 mr_res <- mr(mrdat, method_list = c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode"))
@@ -587,14 +582,17 @@ radial_res <- map(radial_dat, function(x){
 
 ```
 
+Using the core univariable MR methods, we observe that higher genetically predicted LDL and HDL are associated with increased and reduced risk of AD respectively. 
+
 ```{r}
 #| label: tables_MR
 #| code-fold: true
 #| code-summary: Tables for MR results
+#| tbl-cap: Univariable MR Results
 #| warning: false
 #| error: false
 #| message: false
-#| eval: false
+#| echo: false
 
 ## Res 
 mr_res %>%
@@ -614,6 +612,20 @@ mr_res %>%
     decimals = 1
   ) 
 
+```
+
+However, as with total cholesterol levels we observe significant heterogeneity suggesting that the IVW estimates are likely to be biased.
+
+```{r}
+#| label: het_MR
+#| code-fold: true
+#| tbl-cap: Heterogenity tests for univariable MR 
+#| code-summary: Tables for MR results
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+
 ### Heterogenity
 het_res %>%
   select(-id.exposure, -id.outcome) %>%
@@ -631,6 +643,18 @@ het_res %>%
     rows = Q_pval <= 0.001,
     decimals = 1
   ) 
+
+```
+
+```{r}
+#| label: plei_MR
+#| code-fold: true
+#| code-summary: Tables for MR results
+#| tbl-cap: Egger intercept tests for pleiotropy 
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
 
 ### Pleiotropy
 plei_res %>%
@@ -660,7 +684,6 @@ plei_res %>%
 #| warning: false
 #| error: false
 #| message: false
-#| eval: false
 
 scatter_p <- mr_scatter_plot(mr_res, mrdat)
 
@@ -672,12 +695,12 @@ radial_p <-  map(radial_res, function(x){
 )
 
 joint_mr_p <- cowplot::plot_grid(
-  scatter_p[[1]] + labs(title = "HDL") + theme_bw() + theme(legend.position = 'none', text = element_text(size = 8)),
-  funnel_p[[1]] + labs(title = "HDL") + theme_bw() + theme(legend.position = 'none', text = element_text(size = 8)), 
-  radial_p[[1]] + labs(title = "HDL") + coord_fixed(ratio=0.25) + theme(legend.position = 'none', text = element_text(size = 6)), 
-  scatter_p[[2]] + labs(title = "LDL") + theme_bw() + theme(legend.position = 'none', text = element_text(size = 8)), 
-  funnel_p[[2]] + labs(title = "LDL") + theme_bw() + theme(legend.position = 'none', text = element_text(size = 8)),
-  radial_p[[2]] + labs(title = "LDL") + coord_fixed(ratio=0.25) + theme(legend.position = 'none', text = element_text(size = 6))
+  scatter_p[[1]] + labs(title = "LDL") + theme_bw() + theme(legend.position = 'none', text = element_text(size = 8)),
+  funnel_p[[1]] + labs(title = "LDL") + theme_bw() + theme(legend.position = 'none', text = element_text(size = 8)), 
+  radial_p[[2]] + labs(title = "LDL") + coord_fixed(ratio=0.25) + theme(legend.position = 'none', text = element_text(size = 6)), 
+  scatter_p[[2]] + labs(title = "HDL") + theme_bw() + theme(legend.position = 'none', text = element_text(size = 8)), 
+  funnel_p[[2]] + labs(title = "HDL") + theme_bw() + theme(legend.position = 'none', text = element_text(size = 8)),
+  radial_p[[1]] + labs(title = "HDL") + coord_fixed(ratio=0.25) + theme(legend.position = 'none', text = element_text(size = 6))
   )
 
 
@@ -689,10 +712,10 @@ legend_scatter <- cowplot::get_legend(
 # add the legend to the row we made earlier. Give it one-third of 
 # the width of one plot (via rel_widths).
 scatter_out.p <- cowplot::plot_grid(joint_mr_p, legend_scatter, rel_heights = c(4, 1), nrow = 2)
-
+scatter_out.p
 ```
 
-Extending these analyses into a multivariable framework we are able to determine the independent effects of LDL and HDL cholesterol levels on AD. We observed that higher geneticly predicted LDL remains significantly causaly associated with increased AD risk, while the causaly effect of HDL on AD is now non-significant.
+Extending these analyses into a multivariable framework we are able to determine the independent effects of LDL and HDL cholesterol levels on AD. We observed that higher genetically predicted LDL remains significantly causally associated with increased AD risk, while the causal effect of HDL on AD is now non-significant.
 
 ```{r}
 #| label: MVMR
@@ -701,24 +724,21 @@ Extending these analyses into a multivariable framework we are able to determine
 #| warning: false
 #| error: false
 #| message: false
-#| eval: false
 
 mvmr_res <- mv_multiple(mvdat, plots = F)
-mvmr_res$result
 
 ```
-
 
 ```{r}
 #| label: MVMR_tables
 #| code-fold: true
 #| code-summary: Tables for MVMR results
+#| tbl-cap: MVMR Results
 #| warning: false
 #| error: false
 #| message: false
-#| eval: false
+#| echo: false
 
-### Pleiotropy
 mvmr_res$result %>%
   select(-id.exposure, -id.outcome) %>%
   gt() %>%
@@ -748,7 +768,6 @@ The MVMR R package can be used to perform multivariable Mendelian randomization 
 #| warning: false
 #| error: false
 #| message: false
-#| eval: false
 
 mvmr_dat <- cbind(mvdat$exposure_beta, 
         mvdat$exposure_se, 
@@ -765,8 +784,6 @@ F.data <- format_mvmr(BXGs = mvmr_dat[,c(2,3)],
                     seBYG = mvmr_dat[,7],
                     RSID = mvmr_dat[,1])
 
-sres <- strength_mvmr(r_input = F.data, gencov = 0)
-pres <- pleiotropy_mvmr(r_input = F.data, gencov = 0)
 ```
 
 ```{r}
@@ -776,7 +793,6 @@ pres <- pleiotropy_mvmr(r_input = F.data, gencov = 0)
 #| warning: false
 #| error: false
 #| message: false
-#| eval: false
 
 res_mvmr <- ivw_mvmr(r_input = F.data)
 
@@ -787,7 +803,7 @@ mvmr_out <- res_mvmr %>%
     janitor::clean_names() %>%
     rename(exposure = rowname, b = estimate, se = std_error, p = pr_t) %>%
     mutate(
-      exposure = ifelse(exposure == 'exposure1', 'HDL', 'LDL'), 
+      exposure = ifelse(exposure == 'exposure1', 'LDL', 'HDL'), 
       outcome = 'AD',
       method = 'IVW-MVMR'
     ) %>%
@@ -795,8 +811,55 @@ mvmr_out <- res_mvmr %>%
 
 ```
 
+```{r}
+#| label: MVMR_tab
+#| code-fold: true
+#| code-summary: MVMR Results
+#| tbl-cap: MVMR package Results
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
 
-## RMVMR
+mvmr_out %>%
+  gt() %>%
+  fmt_number(
+    columns = c("b", "se", "t_value")
+  ) %>%
+  fmt_number(
+    columns = p,
+    rows = p > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = p,
+    rows = p <= 0.001,
+    decimals = 1
+  ) 
+
+```
+
+```{r}
+#| label: MVMR_diagnostics
+#| code-fold: true
+#| code-summary: MVMR Diagnostics
+#| warning: false
+#| error: false
+#| message: false
+
+sres <- strength_mvmr(r_input = F.data, gencov = 0)
+pres <- pleiotropy_mvmr(r_input = F.data, gencov = 0)
+```
+
+::: {.callout-note}
+Calculating heterogeneity statistics requires the covariance between the effect of the genetic variants on each exposure to be known. This can either be estimated from individual level data, be assumed to be zero, or fixed at zero using non-overlapping samples of each exposure GWAS. 
+
+Here, Q- and F-statistics are estimated assuming a genetic covariance of 0. Phenotypic correlations can calcuated from summary statistics using [PhenoSpD](https://github.com/MRCIEU/PhenoSpD).
+:::
+
+
+### RMVMR
+Radial MVMR is an extension of the `MVMR` package to perform radial multivariable Mendelian randomization analyses, including generating radial-MVMR plots to show the causal effect of each exposure on the outcome.
 ```{r}
 #| label: RMVMR_res
 #| code-fold: true
@@ -804,7 +867,6 @@ mvmr_out <- res_mvmr %>%
 #| warning: false
 #| error: false
 #| message: false
-#| eval: false
 
 F.data_rmvmr <- format_rmvmr(BXGs = mvmr_dat[,c(2,3)],
                     BYG = mvmr_dat[,6],
@@ -815,19 +877,32 @@ F.data_rmvmr <- format_rmvmr(BXGs = mvmr_dat[,c(2,3)],
 
 res_rmvrm <- ivw_rmvmr(F.data_rmvmr)
 sres_rmvrm <- strength_rmvmr(F.data_rmvmr, gencov = 0)
-rmvrm_p <- plot_rmvmr(F.data_rmvmr, res_rmvrm)
 
 ```
 
-### MendelianRandomization & MVMRmode Package
 ```{r}
-#| label: MendelianRandomization
+#| label: RMVMR_plot
 #| code-fold: true
-#| code-summary: Results for MVMR
+#| code-summary: RMVMR Plot
 #| warning: false
 #| error: false
 #| message: false
-#| eval: false
+
+rmvrm_p <- plot_rmvmr(F.data_rmvmr, res_rmvrm)
+
+rmvrm_p
+```
+
+### MendelianRandomization package 
+The `MendelianRandomization` package provides additional functions for MVMR versions of MR-Egger and Weighted Median Estimators. 
+
+```{r}
+#| label: MendelianRandomization
+#| code-fold: true
+#| code-summary: Results for MVMR Sensetivity analyses
+#| warning: false
+#| error: false
+#| message: false
 
 MRMVInputObject <- MendelianRandomization::mr_mvinput(
   bx = mvdat$exposure_beta, 
@@ -835,7 +910,7 @@ MRMVInputObject <- MendelianRandomization::mr_mvinput(
   by = mvdat$outcome_beta,
   byse = mvdat$outcome_se,
   snps = rownames(mvdat$exposure_beta), 
-  exposure = c('HDL', 'LDL'), 
+  exposure = c('LDL', 'HDL'), 
   outcome = 'AD'
   )
 
@@ -865,6 +940,58 @@ MRMV_wme_df <- cbind(MRMV_wme@Exposure, MRMV_wme@Outcome, MRMV_wme@Estimate, MRM
   magrittr::set_colnames(c("Exposure", "Outcome", "b", "se", "p")) %>%
   mutate(method = "MRMV-WME")
 
+```
+
+```{r}
+#| label: MendelianRandomization_tab
+#| code-fold: true
+#| code-summary: Table for MendelianRandomization results
+#| tbl-cap: MVMR Sensetivity Results
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+
+MRMV_tab <- bind_rows(
+    MRMV_egger_df, MRMV_wme_df
+  ) %>%
+  relocate(method, .after = Outcome) %>%
+  select(Exposure, Outcome, method, b, se, p) %>%
+  mutate_at(vars(b, se, p), as.double)
+
+MRMV_tab %>% 
+  gt() %>%
+  fmt_number(
+    columns = c("b", "se")
+  ) %>%
+  fmt_number(
+    columns = p,
+    rows = p > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = p,
+    rows = p <= 0.001,
+    decimals = 1
+  ) 
+```
+
+
+### MVMRmode Package
+The `MVMRmode` pacakge implements a plurality valid sensitivity analysis for multivariable-MR.  
+
+::: {.callout-note}
+This method and corresponding R package are very new, needs further testing.
+:::
+
+```{r}
+#| label: MVMRmode
+#| code-fold: true
+#| code-summary: Results for MVMRmode
+#| tbl-cap: MVMR WBE Sensetivity Results
+#| warning: false
+#| error: false
+#| message: false
 
 MRMV_wbe_res <- MVMRmode::mv_mrmode(Bout = mvdat$outcome_beta, 
                     Bexp = mvdat$exposure_beta, 
@@ -876,13 +1003,48 @@ MRMV_wbe_res <- MVMRmode::mv_mrmode(Bout = mvdat$outcome_beta,
 
 MRMV_wbe_df <- as_tibble(MRMV_wbe_res) %>%
   rename(b = Estimate, p = Pvalue) %>%
-  mutate(Exposure = c("LDL", "HDL"), 
+  mutate(Exposure = c("HDL", "LDL"), 
          Outcome = "AD", 
          method = 'MRMV_WBE') %>%
   mutate_if(is.double, as.character)
 
 
 ```
+
+```{r}
+#| label: MVMRmode_tab
+#| code-fold: true
+#| code-summary: Table for MVMRmode results
+#| tbl-cap: MVMR Sensetivity Results
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+
+as_tibble(MRMV_wbe_res) %>%
+  rename(b = Estimate, p = Pvalue) %>%
+  mutate(Exposure = c("HDL", "LDL"), 
+         Outcome = "AD", 
+         method = 'MRMV_WBE') %>% 
+  relocate(Outcome, method, .after = Exposure) %>%
+  gt() %>%
+  fmt_number(
+    columns = c("b", "CILower", "CIUpper")
+  ) %>%
+  fmt_number(
+    columns = p,
+    rows = p > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = p,
+    rows = p <= 0.001,
+    decimals = 1
+  ) 
+```
+
+## Summary
+Multivariable MR allows estimation of causal relationships between multiple exposures and a single outcome. In univariable MR, we observed that HDL cholesterol levels are associated with a reduced risk of AD, while LDL cholesterol is associated with an increased risk. However, both exposures are highly correlated, and it is difficult to estimate the independent effects of HDL and LDL cholesterol on AD. Using MVMR, we found that after adjusting for the effects of LDL cholesterol, HDL cholesterol was no longer independently associated with AD. This suggests that the observed association between HDL cholesterol and AD risk in univariable MR analyses may be driven by the shared effects of LDL cholesterol. 
 
 ```{r MRMV_out}
 #| label: MRMV_out
@@ -891,7 +1053,7 @@ MRMV_wbe_df <- as_tibble(MRMV_wbe_res) %>%
 #| warning: false
 #| error: false
 #| message: false
-#| eval: false
+#| echo: false
 
 MRMV_out <- bind_rows(
     MRMV_ivw_df, MRMV_egger_df, MRMV_wme_df, MRMV_wbe_df
@@ -899,8 +1061,6 @@ MRMV_out <- bind_rows(
   relocate(method, .after = Outcome) %>%
   select(Exposure, Outcome, method, b, se, p) %>%
   mutate_at(vars(b, se, p), as.double)
-
-write_csv(MRMV_out, 'results/mvmr_sensetivity_results.csv')
 
 MRMV_out %>%
   pivot_wider(names_from = Exposure, values_from = c('b', 'se', 'p')) %>%
@@ -944,8 +1104,7 @@ MRMV_out %>%
     b_HDL = 'b',
     se_HDL = 'se',
     p_HDL = 'p',
-  ) %>%
-  gtsave(., 'results/tables/mvmr_res.png')
+  ) 
 
 ```
 
