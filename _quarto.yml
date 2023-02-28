@@ -18,9 +18,11 @@ book:
     - part: scripts/methods.qmd
       chapters:
         - scripts/mr_harmonization.qmd
+        - scripts/mr_harmonization_II.qmd
         - scripts/mr.qmd
         - scripts/radial_mr.qmd
         - scripts/mvmr.qmd
+        - scripts/lhc_mr.qmd
     - scripts/references.qmd
 
   

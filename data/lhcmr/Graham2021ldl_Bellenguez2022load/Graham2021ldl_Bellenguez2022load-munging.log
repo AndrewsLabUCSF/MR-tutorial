@@ -1,0 +1,35 @@
+Munging 2 summary statistics files: Graham2021ldl_Bellenguez2022load, started at 2023-02-26 09:19:31
+     
+Interpreting the SNP column in Graham2021ldl as the SNP column.
+Interpreting the BETA column as the effect column in Graham2021ldl.
+Interpreting the SE column as the SE column in Graham2021ldl.
+Interpreting the Z column in Graham2021ldl as the standardised effect column.
+Interpreting the P column in Graham2021ldl as the P-value column.
+Interpreting the ALT column in Graham2021ldl as the effect allele column.
+Interpreting the REF column in Graham2021ldl as the alternate allele column.
+Interpreting the N column as the sample size column in Graham2021ldl.
+Interpreting the CHROM column in Graham2021ldl as the chromosome column.
+Interpreting the POS column as the base pair/position column in Graham2021ldl.
+Interpreting the SNP column in Bellenguez2022load as the SNP column.
+Interpreting the BETA column as the effect column in Bellenguez2022load.
+Interpreting the SE column as the SE column in Bellenguez2022load.
+Interpreting the Z column in Bellenguez2022load as the standardised effect column.
+Interpreting the P column in Bellenguez2022load as the P-value column.
+Interpreting the ALT column in Bellenguez2022load as the effect allele column.
+Interpreting the REF column in Bellenguez2022load as the alternate allele column.
+Interpreting the N column as the sample size column in Bellenguez2022load.
+Interpreting the CHROM column in Bellenguez2022load as the chromosome column.
+Interpreting the POS column as the base pair/position column in Bellenguez2022load.
+Munging LD score files, started at 2023-02-26 09:19:54
+     
+Interpreting the RS column in LDfile as the SNP column.
+Interpreting the CHR column as the chromosome column in LDfile.
+Interpreting the POS column as the base pair/position column in LDfile.
+Interpreting the LDSC column as the LD score column in LDfile.
+Interpreting the WEIGHT column as the weight column in LDfile.
+Interpreting the RSID column as the SNP column in rhofile.
+Interpreting the CHR column as the chromosome column in rhofile.
+Interpreting the POS column as the base pair/position column in rhofile.
+Interpreting the piK column as the proportion of effective SNPs in the local-LD distribution column in rhofile.
+Interpreting the sigK column as the variance of the local-LD distribution column in rhofile.
+Interpreting the m_local column as the number of SNPs used to calculate the local-LD distribution column in rhofile.

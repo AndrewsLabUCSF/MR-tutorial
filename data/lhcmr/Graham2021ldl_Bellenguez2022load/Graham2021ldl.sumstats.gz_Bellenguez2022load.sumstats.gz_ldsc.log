@@ -1,0 +1,44 @@
+Multivariate ld-score regression of 2 traits (Graham2021ldl.sumstats.gz Bellenguez2022load.sumstats.gz) began at: 2023-02-26 09:24:50
+Reading in LD scores
+Read in summary statistics [1/2] from: Graham2021ldl.sumstats.gz
+Out of 80484 SNPs, 80174 remain after merging with LD-score files
+Removing 9 SNPs with Chi^2 > 1231.287; 80165 remain
+Read in summary statistics [2/2] from: Bellenguez2022load.sumstats.gz
+Out of 80484 SNPs, 80174 remain after merging with LD-score files
+Removing 0 SNPs with Chi^2 > 487.511; 80174 remain
+          
+Estimating heritability [1/3] for: Graham2021ldl.sumstats.gz
+Heritability Results for trait: Graham2021ldl.sumstats.gz
+Mean Chi^2 across remaining SNPs: 3.423
+Lambda GC: 1.6174
+Intercept: 1.1004 (0.0846)
+Ratio: 0.0414 (0.0349)
+Total Observed Scale h2: 0.0869 (0.0096)
+h2 Z: 9.04
+     
+Calculating genetic covariance [2/3] for traits: Graham2021ldl.sumstats.gz and Bellenguez2022load.sumstats.gz
+80165 SNPs remain after merging Graham2021ldl.sumstats.gz and Bellenguez2022load.sumstats.gz summary statistics
+Results for genetic covariance between: Graham2021ldl.sumstats.gz and Bellenguez2022load.sumstats.gz
+Mean Z*Z: -0.005
+Cross trait Intercept: -2e-04 (0.0182)
+Total Observed Scale Genetic Covariance (g_cov): -5e-04 (0.0018)
+g_cov Z: -0.271
+g_cov P-value: 0.78622
+          
+Estimating heritability [3/3] for: Bellenguez2022load.sumstats.gz
+Heritability Results for trait: Bellenguez2022load.sumstats.gz
+Mean Chi^2 across remaining SNPs: 1.3225
+Lambda GC: 1.2335
+Intercept: 1.0938 (0.0228)
+Ratio: 0.291 (0.0706)
+Total Observed Scale h2: 0.0211 (0.0033)
+h2 Z: 6.38
+     
+      
+Genetic Correlation Results
+Genetic Correlation between Graham2021ldl.sumstats.gz and Bellenguez2022load.sumstats.gz: -0.0112 (0.0411)
+     
+     
+LDSC finished running at 2023-02-26 09:24:59
+Running LDSC for all files took 0 minutes and 9 seconds
+     

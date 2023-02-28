@@ -1,0 +1,261 @@
+---
+output: html_document
+execute: 
+  freeze: auto
+editor_options: 
+  chunk_output_type: console
+---
+
+# Harmonizing SumStats II
+
+Previously, we demonstrated the harmonization of a single exposure-outcome pair. Here, we expand on this concept by harmonizing multiple exposure-outcome trait pairs using the `map` functions from the `purrr` package. However, it is important to note that due to the size of some summary statistic files, memory limits may become an issue when running these scripts locally. As the number of exposure-outcome pairs increases, it becomes even more important to invest in functional programming and develop reproducible, adaptable, and transparent [computational workflows]((https://raps-with-r.dev/)) that can handle large-scale data analysis ([Targets](https://books.ropensci.org/targets/) in R; [Snakemake](https://snakemake.readthedocs.io/en/stable/) in Python). By doing so, we can increase efficiency, reduce errors, and make our research more accessible and reproducible to others.
+
+```{r}
+#| label: packages
+#| code-fold: true
+#| code-summary: Load R Packages
+#| warning: false
+#| error: false
+#| message: false
+
+library(tidyverse)    # Data wrangling 
+library(TwoSampleMR)  # MR 
+library(LDlinkR)      # LD and proxy snps
+
+# Usr defined functions 
+source('scripts/munge_proxies.R')
+source('scripts/misc_functions.R')
+
+```
+
+## Exposure dataset
+
+Our exposures of interest LDL cholesteral level, with GWAS summary statistics obtained from two separate GWAS conducted by the Global Lipid Genetics Consortium. The first GWAS, conducted by Willer et al. in 2013, included 188,577 individuals and identified 56 loci that were significantly associated with LDL cholesterol levels. The second GWAS, conducted by Graham et al. in 2021, included a much larger sample size of approximately 1.65 million individuals, which included 350,000 individuals of non-European ancestry. In the subset of individuals of European ancestry (n = 1,320,016), 403 loci were identified as being significantly associated with LDL cholesterol levels.
+
+The process of importing and clumping the exposure datasets remains the same as before, except that now we are excluding rare variants with a minor allele frequency (MAF) of less than 0.01. This is done to reduce the file size.
+
+```{r}
+#| label: exposure
+#| code-fold: true
+#| code-summary: Import exposure GWAS SumStats
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+
+exposure_paths = c(
+  "resources/Graham2021ldl.chrall.CPRA_b37.tsv.gz",
+  "resources/Willer2013ldl.chrall.CPRA_b37.tsv.gz" 
+)
+exposures <- str_extract(exposure_paths, "(?<=/).*(?=.chrall)")
+
+exposure_ss <- map(exposure_paths, function(x){
+  trait <- str_extract(x, "(?<=/).*(?=.chrall)")
+  
+  message("Imporing: ", x, "....")
+  ## Filter out problematic snps - MAF > 1%, SNVs, rsid
+  ss <- read_tsv(
+    x, comment = "##", col_types = coltypes,
+    col_select = c(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N, TRAIT))  %>%
+    filter(between(AF, 0.01, 0.99)) %>%
+    filter(nchar(REF) == 1 & nchar(ALT) == 1) %>%
+    filter(!is.na(DBSNP_ID)) %>%
+    mutate(TRAIT = trait)
+    
+  message("Standardizing: ", x, "....")
+   ss_out <- ss %>% format_data(.,
+      type = "exposure",
+      snps = NULL,
+      header = TRUE,
+      phenotype_col = "TRAIT",
+      snp_col = "DBSNP_ID",
+      beta_col = "BETA",
+      se_col = "SE",
+      eaf_col = "AF",
+      effect_allele_col = "ALT",
+      other_allele_col = "REF",
+      pval_col = "P",
+      samplesize_col = "N",
+      z_col = "Z",
+      chr_col = "CHROM",
+      pos_col = "POS",
+      log_pval = FALSE
+    ) %>%
+    as_tibble()
+  
+   rm(ss) 
+    ss_out
+  }) %>%
+  magrittr::set_names(exposures)
+
+```
+
+
+```{r}
+#| label: clump
+#| code-fold: true
+#| code-summary: LD clump exposure
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+
+# Perform LD clumping on SNP data, filter SNPs to make it run faster
+exposure_clump <- map(exposure_ss, function(x){
+    x %>% 
+      filter(pval.exposure < 1e-8) %>%
+      clump_data(.,
+      clump_kb = 10000,
+      clump_r2 = 0.001,
+      clump_p1 = 1,
+      clump_p2 = 1,
+      pop = "EUR"
+  )
+}) 
+
+exposure_dat <- bind_rows(exposure_clump)
+```
+
+## Outcome datasets
+
+Our outcomes consist of GWAS of clinical late onset Alzheimer's disease by Kunkle et al 2019 and AD/dementia by Bellenguez et al 2022. Importing, identifying proxy variants, and harmonizing the datasets remains the same as before. 
+
+```{r}
+#| label: outcome
+#| code-fold: true
+#| code-summary: Import outcome GWAS SumStats
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+
+outcome_paths = c(
+  "resources/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz", 
+  "resources/Bellenguez2022load.chrall.CPRA_b37.tsv.gz"
+  )
+
+outcomes <- str_extract(outcome_paths, "(?<=/).*(?=.chrall)")
+
+outcome_ss <- map(outcome_paths, function(x){
+  trait <- str_extract(x, "(?<=/).*(?=.chrall)")
+  
+  message("Imporing: ", x, "....")
+  ## Filter out problematic snps - MAF > 1%, SNVs, rsid
+  ss <- read_tsv(
+    x, comment = "##", col_types = coltypes, # n_max = 100,
+    col_select = c(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N, TRAIT))  %>%
+    filter(between(AF, 0.01, 0.99)) %>%
+    filter(nchar(REF) == 1 & nchar(ALT) == 1) %>%
+    filter(!is.na(DBSNP_ID)) %>%
+    mutate(TRAIT = trait)
+    
+  message("Standardizing: ", x, "....")
+   ss_out <- ss %>% format_data(.,
+      type = "outcome",
+      snps = NULL,
+      header = TRUE,
+      phenotype_col = "TRAIT",
+      snp_col = "DBSNP_ID",
+      beta_col = "BETA",
+      se_col = "SE",
+      eaf_col = "AF",
+      effect_allele_col = "ALT",
+      other_allele_col = "REF",
+      pval_col = "P",
+      samplesize_col = "N",
+      z_col = "Z",
+      chr_col = "CHROM",
+      pos_col = "POS",
+      log_pval = FALSE
+    ) %>%
+    as_tibble()
+  
+   rm(ss) 
+    ss_out
+  }) %>%
+  magrittr::set_names(outcomes)
+
+```
+
+
+```{r}
+#| label: proxy
+#| code-fold: true
+#| code-summary: Identify Proxy Variants
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+
+# extract exposure SNPs present in outcome
+outcome_clump <- map(outcome_ss, function(x){
+    semi_join(
+      x, exposure_dat, by = "SNP"
+    )
+})
+
+# Exposure SNPs not present in outomce
+exp_snps_wo <- map(outcome_ss, function(x){
+  anti_join(
+    exposure_dat, x, by = "SNP"
+  )
+})
+
+# Use LDLinkR to identify proxy snps
+map2(exp_snps_wo, outcomes, function(x,y){
+  LDproxy_batch(x$SNP, 
+        pop = "CEU",             # Match population ancestries
+        r2d = "r2", 
+        token = 'a6deee62cc4a', 
+        append = TRUE,           # We appended the results of each LDlink query to a single file
+        genome_build = "grch37") # Select genome build based on summary stats
+  
+  system(glue("mv combined_query_snp_list_grch37.txt data/exposure_{y}_proxy_snps.txt"))
+  })
+
+# Munge proxy snp file
+outcome_dat <- pmap(list(outcomes, outcome_ss, outcome_clump), 
+                    function(file, sumstats, clumped){
+                      munge_proxies(glue("data/exposure_{file}_proxy_snps.txt"), 
+                                    sumstats, clumped)
+}) %>%
+  bind_rows()
+
+```
+
+During the harmonization step we are now flagging SNPs that are GWS for the outcome or that are located in the *APOE* region for removal.
+
+```{r}
+#| label: harmonize
+#| code-fold: true
+#| code-summary: Harmonize
+#| warning: false
+#| error: false
+#| message: true
+#| eval: false
+
+mr_dat <- harmonise_data(exposure_dat, test, action = 2) %>% 
+  as_tibble() %>%
+   mutate(
+     apoe_region = case_when(
+       chr.outcome == 19 & between(pos.outcome, 44912079, 45912079) ~ TRUE,
+       TRUE ~ FALSE
+     ),
+     gws.outcome = ifelse(pval.outcome < 5e-8, TRUE, FALSE),
+    mr_keep = ifelse(mr_keep == FALSE | apoe_region == TRUE | gws.outcome == TRUE, FALSE, TRUE)
+   )
+
+```
+
+```{r}
+#| label: export_harmonized_data
+#| code-fold: true
+#| code-summary: Export harmonized data
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+#| echo: false
+
+write_csv(mr_dat, 'data/harmonized_ldl_AD_data.csv')
+```

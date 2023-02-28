@@ -1,0 +1,369 @@
+---
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+execute: 
+  freeze: auto
+project:
+  execute-dir: project
+---
+
+# LHC-MR
+
+```{r}
+#| label: packages
+#| code-fold: true
+#| code-summary: Load R Packages
+#| warning: false
+#| error: false
+#| message: false
+
+library(tidyverse)    # Data wrangling 
+library(TwoSampleMR)  # MR 
+library(LDlinkR)      # LD and proxy snps
+library(lhcMR)
+library(gt)
+
+# Usr defined functions
+source('scripts/misc_functions.R')
+
+```
+
+## Univariable MR
+[Introduction: insert text]
+```{r}
+#| label: MR
+#| code-fold: true
+#| code-summary: Univariable MR
+#| warning: false
+#| error: false
+#| message: false
+
+## Import harmonized data 
+mr_dat <- read_csv('data/harmonized_ldl_AD_data.csv') %>%
+  mutate(
+    outcome = str_replace(outcome, '_stage123', ''), 
+    # mr_keep = ifelse(gws.outcome == TRUE, TRUE, mr_keep)
+  )
+
+## MR 
+mr_res <- mr(mr_dat, method_list = c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode")) %>% 
+  as_tibble()
+
+## Single SNP analysis
+res_single <- mr_singlesnp(mr_dat, all_method = c("mr_ivw_fe", "mr_egger_regression", "mr_weighted_median", "mr_weighted_mode")) %>% as_tibble()
+
+## Egger intercept for pleitropy 
+res_pleio <- mr_pleiotropy_test(mr_dat)
+
+## Cochrans Q for heterogeneity 
+res_het <- mr_heterogeneity(mr_dat, method_list = c("mr_egger_regression", "mr_ivw"))
+
+# Radial MR 
+# radial_dat <- mr_dat %>% filter(mr_keep == T) %>% dat_to_RadialMR()
+# radial_res <- map(radial_dat, function(x){
+#     ivw_radial(x, alpha = 0.05/nrow(x))
+#   }
+# )
+
+```
+
+
+[insert text]
+```{r}
+#| label: MR res
+#| code-fold: true
+#| code-summary: MR analysis results
+#| warning: false
+#| error: false
+#| message: false
+#| echo: false
+
+mr_res %>%
+  select(exposure, outcome, method, nsnp, b, se, pval) %>%
+  mutate(
+    method = str_replace(method, 'Inverse variance weighted \\(fixed effects\\)', "IVW")
+    ) %>% 
+  group_by(exposure) %>%
+  gt(rowname_col = "outcome") %>% 
+  fmt_number(
+    columns = c("b", "se")
+  ) %>%
+  fmt_number(
+    columns = pval,
+    rows = pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = pval,
+    rows = pval <= 0.001,
+    decimals = 1
+  ) 
+```
+
+
+```{r}
+#| label: MR_plots
+#| code-fold: true
+#| code-summary: Univariable MR Plots
+#| warning: false
+#| error: false
+#| message: false
+
+## Plots
+scatter_p <- mr_scatter_plot(mr_res, mr_dat) %>%
+  map(., function(scater_plot){
+  scater_plot + theme_bw() + 
+    theme(
+      legend.position = 'none', 
+      text = element_text(size = 8), 
+    )
+  })
+
+funnel_p <- mr_funnel_plot(res_single) %>%
+  map(., function(funnel_plot){
+  funnel_plot + theme_bw() + 
+    theme(
+      legend.position = 'none', 
+      text = element_text(size = 8), 
+    )
+  })
+
+mr_legend <- cowplot::get_legend(
+  mr_scatter_plot(mr_res, mr_dat)[[1]] + theme_bw() + 
+    guides(colour = guide_legend(nrow = 1)) + 
+    theme(
+      text = element_text(size = 8), 
+    )
+)
+
+joint_mr_p <- cowplot::plot_grid(
+  plotlist=c(scatter_p, funnel_p), 
+  ncol = 2, byrow = FALSE, 
+  align = 'hv'
+  )
+
+mr_p_out <- cowplot::plot_grid(
+  joint_mr_p, mr_legend,
+  ncol = 1, 
+  rel_heights = c(1, 0.1)
+  )
+
+mr_p_out
+
+# Radial MR 
+# radial_p <-  map(radial_res, function(x){
+#      plot_radial(x, radial_scale = F, show_outliers = F)
+#   }
+# )
+
+```
+
+[Pleiotropy: insert text]
+```{r}
+#| label: pleiotropy
+#| code-fold: true
+#| code-summary: Pleiotropy
+#| warning: false
+#| error: false
+#| message: false
+#| eval: true
+#| echo: false
+
+res_pleio %>%
+  group_by(exposure) %>%
+  select(-id.exposure, -id.outcome, outcome, exposure) %>%
+  gt(rowname_col = "outcome") %>%
+  fmt_number(
+    columns = c('egger_intercept', 'se')
+  ) %>%
+  fmt_number(
+    columns = pval,
+    rows = pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = pval,
+    rows = pval <= 0.001,
+    decimals = 1
+  )
+
+```
+
+[Heterogeneity: insert text]
+```{r}
+#| label: Heterogeneity
+#| code-fold: true
+#| code-summary: Heterogeneity
+#| warning: false
+#| error: false
+#| message: false
+#| eval: true
+
+# Heterogeneity statistics 
+res_het <- mr_heterogeneity(mr_dat, method_list = c("mr_egger_regression", "mr_ivw"))
+
+res_het %>%
+  select(-id.exposure, -id.outcome, -outcome, -exposure) %>%
+  gt() %>%
+  fmt_number(
+    columns = Q
+  ) %>%
+  fmt_number(
+    columns = Q_pval,
+    rows = Q_pval > 0.001,
+    decimals = 3
+  ) %>% 
+  fmt_scientific(
+    columns = Q_pval,
+    rows = Q_pval <= 0.001,
+    decimals = 1
+  )
+
+```
+
+
+## Importing Data
+
+```{r}
+#| label: ld
+#| code-fold: true
+#| code-summary: LD Paths
+#| warning: false
+#| error: false
+#| message: false
+
+## File paths needed for the analysis
+LD.filepath = "resources/LDscores_filtered.csv" # LD scores
+rho.filepath = "resources/LD_GM2_2prm.csv" # local/SNP-specfic LD scores
+
+ld = "resources/eur_w_ld_chr/"
+hm3 = "resources/w_hm3.snplist"
+
+```
+
+
+```{r}
+#| label: SumStats
+#| code-fold: true
+#| code-summary: Import GWAS SumStats
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+
+paths = c(
+  "resources/Graham2021ldl.chrall.CPRA_b37.tsv.gz",
+  "resources/Willer2013ldl.chrall.CPRA_b37.tsv.gz", 
+  "resources/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz", 
+  "resources/Bellenguez2022load.chrall.CPRA_b37.tsv.gz"
+)
+phenotypes <- str_extract(paths, "(?<=/).*(?=.chrall)")
+
+ss <- map(paths, function(x){
+  trait <- str_extract(x, "(?<=/).*(?=.chrall)")
+  
+  message("Imporing: ", x, "....")
+  ## Filter out problematic snps - MAF < 1%, MNVs, rsid, APOE region
+  ss <- read_tsv(
+    x, comment = "##", col_types = coltypes, # n_max = 100,
+    col_select = c(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N, TRAIT))  %>%
+    filter(between(AF, 0.01, 0.99)) %>%
+    filter(nchar(REF) == 1 & nchar(ALT) == 1) %>%
+    filter(!is.na(DBSNP_ID)) %>%
+    filter(!(CHROM == 19 & between(POS, 44912079, 45912079))) %>%
+    mutate(TRAIT = trait) %>%
+    rename(SNP = DBSNP_ID) 
+  
+  }) %>%
+  magrittr::set_names(phenotypes)
+
+names(exposure_ss) <- exposures
+
+```
+
+## Graham LDL - Bellenguez AD 
+
+
+LHC-MR takes a long time to run, this analysis took 1.6 days.
+```{r}
+#| label: Merge_Graham2021ldl_Bellenguez2022load
+#| code-fold: true
+#| code-summary: Merge Graham2021ldl & Bellenguez2022load
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+
+## Step 1 - Merge Data 
+traits.Graham_Bellenguez = c("Graham2021ldl","Bellenguez2022load")
+input.Graham_Bellenguez = list(ss$Graham2021ldl, ss$Bellenguez2022load)
+df.Graham_Bellenguez = merge_sumstats(
+  input.Graham_Bellenguez, traits.Graham_Bellenguez, LD.filepath, rho.filepath
+  )
+
+## Step 2: Calculating smart starting points for the likelihood optimisation
+SP_list.Graham_Bellenguez = calculate_SP(
+  df.Graham_Bellenguez, traits.Graham_Bellenguez, 
+  run_ldsc=TRUE, run_MR=TRUE, 
+  hm3=hm3, ld=ld,
+  nStep = 2, SP_single=3, SP_pair=50, SNP_filter=10
+  )
+
+## Step 3: Running the likelihood optimisation to estimate the parameters, followed by a block-jackknife procedure to calculate parameter-SE
+res = lhc_mr(SP_list.Graham_Bellenguez, traits.Graham_Bellenguez, 
+             paral_method="lapply", nCores = 1, nBlock=200)
+
+## Step 4: move results
+
+Graham2021ldl_Bellenguez2022load_dir = "data/lhcmr/Graham2021ldl_Bellenguez2022load"
+if (!dir.exists(Graham2021ldl_Bellenguez2022load_dir)){
+  dir.create(Graham2021ldl_Bellenguez2022load_dir)
+}else{
+  print("dir exists")
+}
+
+lhcmr_output <- list.files()
+Graham2021ldl_Bellenguez2022load_files <- lhcmr_output[
+  str_detect(lhcmr_output, "200blockJK|munge.log|FullRes|munging.log|MRresults.csv|ldsc.log|SingleTraitAnalysis|StartingPoints|SummarisedResults")
+]
+
+file.copy(from = Graham2021ldl_Bellenguez2022load_files,
+          to   = glue("{Graham2021ldl_Bellenguez2022load_dir}/{Graham2021ldl_Bellenguez2022load_files}"))
+file.remove(Graham2021ldl_Bellenguez2022load_files)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

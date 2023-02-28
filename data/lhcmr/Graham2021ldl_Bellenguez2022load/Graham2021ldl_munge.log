@@ -1,0 +1,27 @@
+The munging of 1 summary statistics started at 2023-02-26 09:24:03
+Reading in reference file
+Reading summary statistics for Graham2021ldl_GWAS.txt. Please note that this step usually takes a few minutes due to the size of summary statistic files.
+All files loaded into R!
+
+
+
+Munging file: Graham2021ldl_GWAS.txt
+Interpreting the RSID column as the SNP column.
+Interpreting the A1 column as the A1 column.
+Interpreting the A2 column as the A2 column.
+Interpreting the BETA column as the effect column.
+Interpreting the PVAL column as the P column.
+Interpreting the N column as the N column.
+Interpreting the SE column as the SE column.
+Merging file:Graham2021ldl_GWAS.txt with the reference file:resources/w_hm3.snplist
+451846 rows present in the full Graham2021ldl_GWAS.txt summary statistics file.
+371362 rows were removed from the Graham2021ldl_GWAS.txt summary statistics file as the rs-ids for these rows were not present in the reference file.
+No INFO column, cannot filter on INFO, which may influence results
+No MAF column, cannot filter on MAF, which may influence results
+80484SNPs are left in the summary statistics file Graham2021ldl_GWAS.txt after QC.
+I am done munging file: Graham2021ldl_GWAS.txt
+The file is saved as Graham2021ldl.sumstats.gz in the current working directory.
+     
+Munging was completed at 2023-02-26 09:24:39
+The munging of all files took 0 minutes and 36.0612580776215 seconds
+Please check the .log file(s) to ensure that all columns were interpreted correctly and no warnings were issued for any of the summary statistics files
