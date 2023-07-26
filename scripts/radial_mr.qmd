@@ -1,7 +1,12 @@
 ---
-output: html_document
+format: html
+editor: visual
 editor_options: 
   chunk_output_type: console
+execute: 
+  freeze: auto
+project:
+  execute-dir: project
 ---
 
 # Radial-MR
@@ -19,6 +24,7 @@ library(TwoSampleMR)  # MR
 library(gt)
 library(RadialMR)     # Radial MR sensetivity analysis
 library(phenoscanner)
+library(reactable)
 
 ```
 
@@ -164,10 +170,10 @@ phewas_dat <- phenoscanner(
   r2 = 0.8
   ) 
 
-radial_ivw_res$outliers %>% 
+radial_ivw_res$outliers %>%
   left_join(filter(phewas_dat$snps, snp == rsid), by = c("SNP" = "snp")) %>%
-  select(SNP, Q_statistic, p.value, hg19_coordinates, a1, a2, hgnc) %>% 
-  DT::datatable()
+  select(SNP, Q_statistic, p.value, hg19_coordinates, a1, a2, hgnc) %>%
+  reactable()
 
 ```
 
@@ -182,7 +188,7 @@ Examining the PheWAS results, we can see that three of the outliers (rs7412, rs7
 #| echo: false
 
 phewas_dat$results %>% 
-  DT::datatable()
+  reactable()
 
 ```
 

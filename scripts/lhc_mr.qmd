@@ -1,6 +1,6 @@
 ---
 format: html
-editor: visual
+editor: source
 editor_options: 
   chunk_output_type: console
 execute: 
@@ -397,7 +397,7 @@ file.remove(Graham2021ldl_Kunkle2019load_files)
 LHC-MR takes a long time to run, this analysis took 1.6 days.
 
 ```{r}
-#| label: Merge_Graham2021ldl_Bellenguez2022load
+#| label: Merge_Willerldl_Bellenguez2022load
 #| code-fold: true
 #| code-summary: Merge Graham2021ldl & Bellenguez2022load
 #| warning: false
@@ -443,7 +443,6 @@ file.copy(from = Willer2013ldl_Bellenguez2022load_files,
 file.remove(Willer2013ldl_Bellenguez2022load_files)
 
 ```
-
 
 ## Willer LDL - Kunkle AD
 
