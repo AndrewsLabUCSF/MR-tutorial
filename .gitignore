@@ -42,5 +42,6 @@ vignettes/*.pdf
 
 # Dont track summary stats in resources
 resources/*b37.tsv.gz
+*.sumstats.gz 
 
 /.quarto/
