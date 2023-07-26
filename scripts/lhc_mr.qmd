@@ -20,6 +20,7 @@ project:
 #| message: false
 
 library(tidyverse)    # Data wrangling 
+library(glue)
 library(TwoSampleMR)  # MR 
 library(LDlinkR)      # LD and proxy snps
 library(lhcMR)
@@ -31,7 +32,9 @@ source('scripts/misc_functions.R')
 ```
 
 ## Univariable MR
-[Introduction: insert text]
+
+\[Introduction: insert text\]
+
 ```{r}
 #| label: MR
 #| code-fold: true
@@ -69,8 +72,8 @@ res_het <- mr_heterogeneity(mr_dat, method_list = c("mr_egger_regression", "mr_i
 
 ```
 
+\[insert text\]
 
-[insert text]
 ```{r}
 #| label: MR res
 #| code-fold: true
@@ -80,7 +83,7 @@ res_het <- mr_heterogeneity(mr_dat, method_list = c("mr_egger_regression", "mr_i
 #| message: false
 #| echo: false
 
-mr_res %>%
+tbl_mr_res <- mr_res %>%
   select(exposure, outcome, method, nsnp, b, se, pval) %>%
   mutate(
     method = str_replace(method, 'Inverse variance weighted \\(fixed effects\\)', "IVW")
@@ -100,8 +103,12 @@ mr_res %>%
     rows = pval <= 0.001,
     decimals = 1
   ) 
-```
 
+tbl_mr_res
+
+gtsave(tbl_mr_res, "results/tables/mr_ldl_ad_all_tbl.png")
+
+```
 
 ```{r}
 #| label: MR_plots
@@ -150,7 +157,9 @@ mr_p_out <- cowplot::plot_grid(
   rel_heights = c(1, 0.1)
   )
 
+
 mr_p_out
+ggsave("results/plots/mr_ldl_ad_all.png", units = "in", height = 6, width = 4)
 
 # Radial MR 
 # radial_p <-  map(radial_res, function(x){
@@ -160,7 +169,8 @@ mr_p_out
 
 ```
 
-[Pleiotropy: insert text]
+\[Pleiotropy: insert text\]
+
 ```{r}
 #| label: pleiotropy
 #| code-fold: true
@@ -191,7 +201,8 @@ res_pleio %>%
 
 ```
 
-[Heterogeneity: insert text]
+\[Heterogeneity: insert text\]
+
 ```{r}
 #| label: Heterogeneity
 #| code-fold: true
@@ -223,7 +234,6 @@ res_het %>%
 
 ```
 
-
 ## Importing Data
 
 ```{r}
@@ -242,7 +252,6 @@ ld = "resources/eur_w_ld_chr/"
 hm3 = "resources/w_hm3.snplist"
 
 ```
-
 
 ```{r}
 #| label: SumStats
@@ -279,14 +288,12 @@ ss <- map(paths, function(x){
   }) %>%
   magrittr::set_names(phenotypes)
 
-names(exposure_ss) <- exposures
-
 ```
 
-## Graham LDL - Bellenguez AD 
-
+## Graham LDL - Bellenguez AD
 
 LHC-MR takes a long time to run, this analysis took 1.6 days.
+
 ```{r}
 #| label: Merge_Graham2021ldl_Bellenguez2022load
 #| code-fold: true
@@ -335,35 +342,155 @@ file.remove(Graham2021ldl_Bellenguez2022load_files)
 
 ```
 
+## Graham LDL - Kunkle AD
+
+```{r}
+#| label: Merge_Graham2021ldl_Kunkle2019load_stage123
+#| code-fold: true
+#| code-summary: Merge Graham2021ldl & Kunkle2019load_stage123
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+
+## Step 1 - Merge Data 
+traits.Graham_Kunkle = c("Graham2021ldl","Kunkle2019load")
+input.Graham_Kunkle = list(ss$Graham2021ldl, ss$Kunkle2019load_stage123)
+df.Graham_Kunkle = merge_sumstats(
+  input.Graham_Kunkle, traits.Graham_Kunkle, LD.filepath, rho.filepath
+  )
+
+## Step 2: Calculating smart starting points for the likelihood optimisation
+SP_list.Graham_Kunkle = calculate_SP(
+  df.Graham_Kunkle, traits.Graham_Kunkle, 
+  run_ldsc=TRUE, run_MR=TRUE, 
+  hm3=hm3, ld=ld,
+  nStep = 2, SP_single=3, SP_pair=50, SNP_filter=10
+  )
+
+## Step 3: Running the likelihood optimisation to estimate the parameters, followed by a block-jackknife procedure to calculate parameter-SE
+res.Graham_Kunkle = lhc_mr(SP_list.Graham_Kunkle, traits.Graham_Kunkle, 
+             paral_method="lapply", nCores = 1, nBlock=200)
+
+## Step 4: move results
+
+Graham2021ldl_Kunkle2019load_dir = "data/lhcmr/Graham2021ldl_Kunkle2019load"
+if (!dir.exists(Graham2021ldl_Kunkle2019load_dir)){
+  dir.create(Graham2021ldl_Kunkle2019load_dir)
+}else{
+  print("dir exists")
+}
+
+lhcmr_output <- list.files()
+Graham2021ldl_Kunkle2019load_files <- lhcmr_output[
+  str_detect(lhcmr_output, "200blockJK|munge.log|FullRes|munging.log|MRresults.csv|ldsc.log|SingleTraitAnalysis|StartingPoints|SummarisedResults")
+]
+
+file.copy(from = Graham2021ldl_Kunkle2019load_files,
+          to   = glue("{Graham2021ldl_Kunkle2019load_dir}/{Graham2021ldl_Kunkle2019load_files}"))
+file.remove(Graham2021ldl_Kunkle2019load_files)
+
+```
+
+## Willer LDL - Bellenguez AD
+
+LHC-MR takes a long time to run, this analysis took 1.6 days.
+
+```{r}
+#| label: Merge_Graham2021ldl_Bellenguez2022load
+#| code-fold: true
+#| code-summary: Merge Graham2021ldl & Bellenguez2022load
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+
+## Step 1 - Merge Data 
+traits.Willer_Bellenguez = c("Willer2013ldl","Bellenguez2022load")
+input.Willer_Bellenguez = list(ss$Willer2013ldl, ss$Bellenguez2022load)
+df.Willer_Bellenguez = merge_sumstats(
+  input.Willer_Bellenguez, traits.Willer_Bellenguez, LD.filepath, rho.filepath
+  )
+
+## Step 2: Calculating smart starting points for the likelihood optimisation
+SP_list.Willer_Bellenguez = calculate_SP(
+  df.Willer_Bellenguez, traits.Willer_Bellenguez, 
+  run_ldsc=TRUE, run_MR=TRUE, 
+  hm3=hm3, ld=ld,
+  nStep = 2, SP_single=3, SP_pair=50, SNP_filter=10
+  )
+
+## Step 3: Running the likelihood optimisation to estimate the parameters, followed by a block-jackknife procedure to calculate parameter-SE
+res.Willer_Bellenguez = lhc_mr(SP_list.Willer_Bellenguez, traits.Willer_Bellenguez, 
+             paral_method="lapply", nCores = 2, nBlock=200)
+
+## Step 4: move results
+
+Willer2013ldl_Bellenguez2022load_dir = "data/lhcmr/Willer2013ldl_Bellenguez2022load"
+if (!dir.exists(Willer2013ldl_Bellenguez2022load_dir)){
+  dir.create(Willer2013ldl_Bellenguez2022load_dir)
+}else{
+  print("dir exists")
+}
+
+lhcmr_output <- list.files()
+Willer2013ldl_Bellenguez2022load_files <- lhcmr_output[
+  str_detect(lhcmr_output, "200blockJK|munge.log|FullRes|munging.log|MRresults.csv|ldsc.log|SingleTraitAnalysis|StartingPoints|SummarisedResults")
+]
+
+file.copy(from = Willer2013ldl_Bellenguez2022load_files,
+          to   = glue("{Willer2013ldl_Bellenguez2022load_dir}/{Willer2013ldl_Bellenguez2022load_files}"))
+file.remove(Willer2013ldl_Bellenguez2022load_files)
+
+```
 
 
+## Willer LDL - Kunkle AD
 
+```{r}
+#| label: Merge_Willer_Kunkle2019load_stage123
+#| code-fold: true
+#| code-summary: Merge Willer & Kunkle2019load_stage123
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
 
+## Step 1 - Merge Data 
+traits.Willer_Kunkle = c("Willer2013ldl","Kunkle2019load")
+input.Willer_Kunkle = list(ss$Willer2013ldl, ss$Kunkle2019load_stage123)
+df.Willer_Kunkle = merge_sumstats(
+  input.Willer_Kunkle, traits.Willer_Kunkle, LD.filepath, rho.filepath
+  )
 
+## Step 2: Calculating smart starting points for the likelihood optimisation
+SP_list.Willer_Kunkle = calculate_SP(
+  df.Willer_Kunkle, traits.Willer_Kunkle, 
+  run_ldsc=TRUE, run_MR=TRUE, 
+  hm3=hm3, ld=ld,
+  nStep = 2, SP_single=3, SP_pair=50, SNP_filter=10
+  )
 
+## Step 3: Running the likelihood optimisation to estimate the parameters, followed by a block-jackknife procedure to calculate parameter-SE
+res.Willer_Kunkle = lhc_mr(SP_list.Willer_Kunkle, traits.Willer_Kunkle, 
+             paral_method="lapply", nCores = 2, nBlock=200)
 
+## Step 4: move results
 
+Willer2013ldl_Kunkle2019load_dir = "data/lhcmr/Willer2013ldl_Kunkle2019load"
+if (!dir.exists(Willer2013ldl_Kunkle2019load_dir)){
+  dir.create(Willer2013ldl_Kunkle2019load_dir)
+}else{
+  print("dir exists")
+}
 
+lhcmr_output <- list.files()
+Willer2013ldl_Kunkle2019load_files <- lhcmr_output[
+  str_detect(lhcmr_output, "200blockJK|munge.log|FullRes|munging.log|MRresults.csv|ldsc.log|SingleTraitAnalysis|StartingPoints|SummarisedResults")
+]
 
+file.copy(from = Willer2013ldl_Kunkle2019load_files,
+          to   = glue("{Willer2013ldl_Kunkle2019load_dir}/{Willer2013ldl_Kunkle2019load_files}"))
+file.remove(Willer2013ldl_Kunkle2019load_files)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```

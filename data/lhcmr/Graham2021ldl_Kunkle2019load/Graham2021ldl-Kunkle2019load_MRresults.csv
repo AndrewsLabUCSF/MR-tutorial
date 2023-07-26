@@ -1,0 +1,23 @@
+"id.exposure","id.outcome","outcome","exposure","method","nsnp","b","se","pval"
+"zANuen","DdmCli","Kunkle2019load","Graham2021ldl","MR Egger",353,-0.0733189302015383,0.0314723403020237,0.0203923299672307
+"zANuen","DdmCli","Kunkle2019load","Graham2021ldl","Weighted median",353,-0.0220383896945095,0.0295937511276925,0.456454667759776
+"zANuen","DdmCli","Kunkle2019load","Graham2021ldl","Inverse variance weighted",353,-0.00834344031521181,0.0190894165611288,0.662059480776953
+"zANuen","DdmCli","Kunkle2019load","Graham2021ldl","Simple mode",353,-0.0173541759644116,0.0653077918931895,0.790603471971422
+"zANuen","DdmCli","Kunkle2019load","Graham2021ldl","Weighted mode",353,-0.0259269002931397,0.026700415568109,0.332200179007128
+"id.exposure","id.outcome","outcome","exposure","method","Q","Q_df","Q_pval","I2"
+"zANuen","DdmCli","Kunkle2019load","Graham2021ldl","MR Egger",464.154747901181,351,4.67055170752104e-05,24.3786686256782
+"zANuen","DdmCli","Kunkle2019load","Graham2021ldl","Inverse variance weighted",472.989879554215,352,1.68536095955499e-05,25.5798030326242
+"id.exposure","id.outcome","outcome","exposure","egger_intercept","se","pval"
+"zANuen","DdmCli","Kunkle2019load","Graham2021ldl",0.00103965473576206,0.00040221703841109,0.0101462062674637
+*
+"id.exposure","id.outcome","outcome","exposure","method","nsnp","b","se","pval"
+"XqtCoS","CyDuuU","Graham2021ldl","Kunkle2019load","MR Egger",21,-0.0270185471118375,0.044574703291951,0.551594913614654
+"XqtCoS","CyDuuU","Graham2021ldl","Kunkle2019load","Weighted median",21,-0.0152059700420952,0.00969477633144267,0.116771384667553
+"XqtCoS","CyDuuU","Graham2021ldl","Kunkle2019load","Inverse variance weighted",21,-0.0117144826508008,0.010008641641988,0.241825227376515
+"XqtCoS","CyDuuU","Graham2021ldl","Kunkle2019load","Simple mode",21,-0.0184514599132911,0.0157337011363098,0.254681404327074
+"XqtCoS","CyDuuU","Graham2021ldl","Kunkle2019load","Weighted mode",21,-0.0216852729797207,0.0146697415417223,0.154922684605937
+"id.exposure","id.outcome","outcome","exposure","method","Q","Q_df","Q_pval","I2"
+"XqtCoS","CyDuuU","Graham2021ldl","Kunkle2019load","MR Egger",45.207339348727,19,0.00064103375376451,57.9714261584054
+"XqtCoS","CyDuuU","Graham2021ldl","Kunkle2019load","Inverse variance weighted",45.5034239437321,20,0.000942516952659668,56.0472635537684
+"id.exposure","id.outcome","outcome","exposure","egger_intercept","se","pval"
+"XqtCoS","CyDuuU","Graham2021ldl","Kunkle2019load",0.000467681717327171,0.00132577602189081,0.728150998609302

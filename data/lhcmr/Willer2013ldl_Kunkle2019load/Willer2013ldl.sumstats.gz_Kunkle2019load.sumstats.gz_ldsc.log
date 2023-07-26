@@ -1,0 +1,44 @@
+Multivariate ld-score regression of 2 traits (Willer2013ldl.sumstats.gz Kunkle2019load.sumstats.gz) began at: 2023-03-17 15:35:08
+Reading in LD scores
+Read in summary statistics [1/2] from: Willer2013ldl.sumstats.gz
+Out of 71783 SNPs, 71602 remain after merging with LD-score files
+Removing 16 SNPs with Chi^2 > 173.082; 71586 remain
+Read in summary statistics [2/2] from: Kunkle2019load.sumstats.gz
+Out of 71783 SNPs, 71602 remain after merging with LD-score files
+Removing 2 SNPs with Chi^2 > 82.771; 71600 remain
+          
+Estimating heritability [1/3] for: Willer2013ldl.sumstats.gz
+Heritability Results for trait: Willer2013ldl.sumstats.gz
+Mean Chi^2 across remaining SNPs: 1.2047
+Lambda GC: 1.0508
+Intercept: 0.9166 (0.0277)
+Ratio: -0.4076 (0.1353)
+Total Observed Scale h2: 0.0746 (0.0107)
+h2 Z: 6.96
+     
+Calculating genetic covariance [2/3] for traits: Willer2013ldl.sumstats.gz and Kunkle2019load.sumstats.gz
+71584 SNPs remain after merging Willer2013ldl.sumstats.gz and Kunkle2019load.sumstats.gz summary statistics
+Results for genetic covariance between: Willer2013ldl.sumstats.gz and Kunkle2019load.sumstats.gz
+Mean Z*Z: 0.01
+Cross trait Intercept: 0.0079 (0.0117)
+Total Observed Scale Genetic Covariance (g_cov): 0.0013 (0.0058)
+g_cov Z: 0.225
+g_cov P-value: 0.8216
+          
+Estimating heritability [3/3] for: Kunkle2019load.sumstats.gz
+Heritability Results for trait: Kunkle2019load.sumstats.gz
+Mean Chi^2 across remaining SNPs: 1.107
+Lambda GC: 1.0956
+Intercept: 1.0154 (0.016)
+Ratio: 0.1436 (0.1491)
+Total Observed Scale h2: 0.0636 (0.0146)
+h2 Z: 4.36
+     
+      
+Genetic Correlation Results
+Genetic Correlation between Willer2013ldl.sumstats.gz and Kunkle2019load.sumstats.gz: 0.0191 (0.0845)
+     
+     
+LDSC finished running at 2023-03-17 15:35:11
+Running LDSC for all files took 0 minutes and 3 seconds
+     

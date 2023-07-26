@@ -1,0 +1,44 @@
+Multivariate ld-score regression of 2 traits (Willer2013ldl.sumstats.gz Bellenguez2022load.sumstats.gz) began at: 2023-03-17 08:55:44
+Reading in LD scores
+Read in summary statistics [1/2] from: Willer2013ldl.sumstats.gz
+Out of 70924 SNPs, 70755 remain after merging with LD-score files
+Removing 13 SNPs with Chi^2 > 173.082; 70742 remain
+Read in summary statistics [2/2] from: Bellenguez2022load.sumstats.gz
+Out of 70924 SNPs, 70755 remain after merging with LD-score files
+Removing 0 SNPs with Chi^2 > 487.511; 70755 remain
+          
+Estimating heritability [1/3] for: Willer2013ldl.sumstats.gz
+Heritability Results for trait: Willer2013ldl.sumstats.gz
+Mean Chi^2 across remaining SNPs: 1.1695
+Lambda GC: 1.0235
+Intercept: 0.8965 (0.0205)
+Ratio: -0.6108 (0.1212)
+Total Observed Scale h2: 0.0712 (0.0089)
+h2 Z: 7.97
+     
+Calculating genetic covariance [2/3] for traits: Willer2013ldl.sumstats.gz and Bellenguez2022load.sumstats.gz
+70742 SNPs remain after merging Willer2013ldl.sumstats.gz and Bellenguez2022load.sumstats.gz summary statistics
+Results for genetic covariance between: Willer2013ldl.sumstats.gz and Bellenguez2022load.sumstats.gz
+Mean Z*Z: -0.0165
+Cross trait Intercept: 0.0147 (0.0116)
+Total Observed Scale Genetic Covariance (g_cov): -0.0055 (0.0023)
+g_cov Z: -2.34
+g_cov P-value: 0.019121
+          
+Estimating heritability [3/3] for: Bellenguez2022load.sumstats.gz
+Heritability Results for trait: Bellenguez2022load.sumstats.gz
+Mean Chi^2 across remaining SNPs: 1.2911
+Lambda GC: 1.1989
+Intercept: 1.0163 (0.0197)
+Ratio: 0.0561 (0.0678)
+Total Observed Scale h2: 0.0257 (0.0029)
+h2 Z: 8.84
+     
+      
+Genetic Correlation Results
+Genetic Correlation between Willer2013ldl.sumstats.gz and Bellenguez2022load.sumstats.gz: -0.1277 (0.0545)
+     
+     
+LDSC finished running at 2023-03-17 08:55:50
+Running LDSC for all files took 0 minutes and 6 seconds
+     
