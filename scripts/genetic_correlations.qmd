@@ -1,7 +1,12 @@
 ---
-output: html_document
+format: html
+editor: source
 editor_options: 
   chunk_output_type: console
+execute: 
+  freeze: auto
+project:
+  execute-dir: project
 ---
 
 # Genetic Correlations

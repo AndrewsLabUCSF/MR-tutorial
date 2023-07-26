@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Mendelian Randomization Tutorial - 1&nbsp; Phenotypes</title>
+<title>Mendelian Randomization Tutorial - 9&nbsp; Genetic Correlations</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,8 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../scripts/sumstats.html" rel="next">
-<link href="../scripts/intro.html" rel="prev">
+<link href="../scripts/references.html" rel="next">
+<link href="../scripts/other_methods.html" rel="prev">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -108,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../scripts/intro.html">Introduction</a></li><li class="breadcrumb-item"><a href="../scripts/phenotypes.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Phenotypes</span></a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../scripts/other_methods.html">Other Methods</a></li><li class="breadcrumb-item"><a href="../scripts/genetic_correlations.html"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Genetic Correlations</span></a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -154,7 +154,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../scripts/phenotypes.html" class="sidebar-item-text sidebar-link active">
+  <a href="../scripts/phenotypes.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Phenotypes</span></span></a>
   </div>
 </li>
@@ -224,7 +224,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../scripts/genetic_correlations.html" class="sidebar-item-text sidebar-link">
+  <a href="../scripts/genetic_correlations.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Genetic Correlations</span></span></a>
   </div>
 </li>
@@ -246,9 +246,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#lipids" id="toc-lipids" class="nav-link active" data-scroll-target="#lipids">Lipids</a></li>
-  <li><a href="#alzheimers-disease" id="toc-alzheimers-disease" class="nav-link" data-scroll-target="#alzheimers-disease">Alzheimer’s disease</a></li>
-  <li><a href="#sumstat-standardization" id="toc-sumstat-standardization" class="nav-link" data-scroll-target="#sumstat-standardization">SumStat Standardization</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link active" data-scroll-target="#methods">Methods</a>
+  <ul class="collapse">
+  <li><a href="#tools-publications" id="toc-tools-publications" class="nav-link" data-scroll-target="#tools-publications">Tools &amp; Publications</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -257,7 +258,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Phenotypes</span></h1>
+<h1 class="title"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Genetic Correlations</span></h1>
 </div>
 
 
@@ -272,98 +273,88 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<p>The following genome-wide association studies (GWAS) are used as example traits for each of the MR methods covered in this tutorial.</p>
 <div class="cell">
 <details>
 <summary>Load R Packages</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)    <span class="co"># Data wrangling </span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TwoSampleMR)  <span class="co"># MR </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggman)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Define column types for summary statistics</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>coltypes <span class="ot">=</span> <span class="fu">cols</span>(</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">ID =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">CHROM =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">POS =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">REF =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">ALT =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">AF =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">TRAIT =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">BETA =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">SE =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">Z =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">P =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">OR =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">OR_L95 =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">OR_U95 =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">DIR =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">G1000_ID =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">G1000_VARIANT =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">DBSNP_ID =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">DBSNP_VARIANT =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">OLD_ID =</span> <span class="fu">col_character</span>(),</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">OLD_VARIANT =</span> <span class="fu">col_character</span>()</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GenomicSEM)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="lipids" class="level2">
-<h2 class="anchored" data-anchor-id="lipids">Lipids</h2>
-<p>A GWAS of low-density lipoprotein (LDL) cholesterol, high-density lipoprotein (HDL) cholesterol, triglycerides and total cholesterol levels conducted in 188,577 individuals that identified 157 loci were associated with lipid levels.</p>
-<p>Willer, C. J. et al.&nbsp;Discovery and refinement of loci associated with lipid levels. <a href="https://www.nature.com/articles/ng.2797">Nat Genet 45, 1274–83 (2013)</a>.</p>
-<p>Summary statistics</p>
-<ol type="1">
-<li><a href="https://www.dropbox.com/s/5lqbx2dv8h5r8fc/Willer2013ldl.chrall.CPRA_b37.tsv.gz?dl=0">LDL Cholesterol</a></li>
-<li><a href="https://www.dropbox.com/s/l4r8zcsdpg46c12/Willer2013hdl.chrall.CPRA_b37.tsv.gz?dl=0">HDL Cholesterol</a></li>
-<li><a href="https://www.dropbox.com/s/7vhuaczrvt2nstm/Willer2013tg.chrall.CPRA_b37.tsv.gz?dl=0">Triglycerides</a></li>
-<li><a href="https://www.dropbox.com/s/ovc7wut33wekzga/Willer2013tc.chrall.CPRA_b37.tsv.gz?dl=0">Total cholesterol</a></li>
-</ol>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<section id="tools-publications" class="level3">
+<h3 class="anchored" data-anchor-id="tools-publications">Tools &amp; Publications</h3>
+<p>R, <a href="https://rpubs.com/MichelNivard/640145">GenomicSEM</a>, <a href="https://github.com/bulik/ldsc">LDSC</a>, <a href="https://github.com/zhenin/HDL">HDL</a></p>
+<ul>
+<li>Bulik-Sullivan, B. et al.&nbsp;An atlas of genetic correlations across human diseases and traits. <a href="https://www.nature.com/articles/ng.3406">Nat Genet 47, 1236–1241 (2015)</a>.</li>
+<li>Ning, Z., Pawitan, Y. &amp; Shen, X. High-definition likelihood inference of genetic correlations across human complex traits. <a href="https://pubmed.ncbi.nlm.nih.gov/32601477/">Nat Genet 52, 859–864 (2020)</a>.</li>
+</ul>
+<p>Genetic correlation (rg) refers to the degree to which the genetic determinants of two traits overlap - the proportion of variance that two traits share due to genetic causes. A positive genetic correlation between two traits implies that the same genetic variants are influencing both traits in the same direction. Conversely, a negative genetic correlation implies that the genetic variants influencing one trait are having the opposite effect on the other trait.</p>
+<p><strong>LDSC:</strong> Linkage disequilibrium score regression (LDSC) leverages linkage disequilibrium (LD), the non-random association of alleles at different loci, to estimate genetic correlations between two traits. This method operates on the premise that single nucleotide polymorphisms (SNPs) with a higher count of LD partners (thus having a higher LD score) are typically more associated with a trait due to polygenicity, a condition where numerous genetic variants each exert a minor effect.</p>
+<p><strong>HDL:</strong> High-definition likelihood (HDL) provides genetic correlation estimates that have higher accuracy and precision compared to LDSC. HDL achives this by using a full likelihood-based method that leverages LD information across the whole genome, where as LDSC only use partial information.</p>
 <div class="cell">
 <details>
-<summary>Total Cholesterol Manhattan</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>tc_path <span class="ot">=</span> <span class="st">"resources/Willer2013tc.chrall.CPRA_b37.tsv.gz"</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>tc_ss <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(tc_path, <span class="at">comment =</span> <span class="st">"##"</span>, <span class="at">col_types =</span> coltypes, </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">col_select =</span> <span class="fu">c</span>(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N, TRAIT))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter on p &lt; 0.5 to reduce compute</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggman</span>(<span class="fu">filter</span>(tc_ss, P <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">&amp;</span> P <span class="sc">&gt;</span> <span class="fl">1e-100</span>), <span class="at">snp =</span> <span class="st">"DBSNP_ID"</span>, <span class="at">bp =</span> <span class="st">"POS"</span>, <span class="at">chrom =</span> <span class="st">"CHROM"</span>, <span class="at">pvalue =</span> <span class="st">"P"</span>, <span class="at">relative.positions =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> </span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<summary>Munge GWAS SumStats</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="do">## Summary statistics </span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>Willer2013ldl <span class="ot">=</span> <span class="st">"resources/Willer2013ldl.chrall.CPRA_b37.tsv.gz"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Graham2021ldl <span class="ot">=</span> <span class="st">"resources/Graham2021ldl.chrall.CPRA_b37.tsv.gz"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>KunkleAD <span class="ot">=</span> <span class="st">"resources/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz"</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>BellenguezAD <span class="ot">=</span> <span class="st">"resources/Bellenguez2022load.chrall.CPRA_b37.tsv.gz"</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="do">## LD Structure </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>ld_path <span class="ot">=</span> <span class="st">"resources/eur_w_ld_chr/"</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="do">## HAPMAP3 SNPs</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>hm3_path <span class="ot">=</span> <span class="st">"resources/w_hm3.snplist"</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>GenomicSEM<span class="sc">::</span><span class="fu">munge</span>(</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">files =</span> <span class="fu">c</span>(Willer2013ldl, Graham2021ldl, KunkleAD, BellenguezAD), </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">hm3 =</span> hm3_path, </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">trait.names =</span> <span class="fu">c</span>(<span class="st">"Willer2013ldl"</span>, <span class="st">"Graham2021ldl"</span>, <span class="st">"KunkleAD"</span>, <span class="st">"BellenguezAD"</span>), </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">maf.filter =</span> <span class="fl">0.05</span>, </span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">column.names =</span> <span class="fu">list</span>(</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">SNP=</span><span class="st">'DBSNP_ID'</span>, </span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">MAF=</span><span class="st">'AF'</span>, </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">A1=</span><span class="st">'ALT'</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">A2=</span><span class="st">'REF'</span>, </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">effect=</span><span class="st">'BETA'</span>, </span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">N =</span> <span class="st">"N"</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  ), </span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">overwrite=</span><span class="cn">FALSE</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output-display">
-<p><img src="phenotypes_files/figure-html/tc_manhattan-1.png" class="img-fluid" width="672"></p>
 </div>
-</div>
-</section>
-<section id="alzheimers-disease" class="level2">
-<h2 class="anchored" data-anchor-id="alzheimers-disease">Alzheimer’s disease</h2>
-<p>A GWAS of Alzheimer’s disease conducted in 94,437 indivudles by the International Genomics Alzheiemr’s Project that Identified 20 genome-wide signiﬁcant loci.</p>
-<p>Kunkle, B. W. et al.&nbsp;Genetic meta-analysis of diagnosed Alzheimer’s disease identifies new risk loci and implicates Aβ, tau, immunity and lipid processing. <a href="https://www.nature.com/articles/s41588-019-0358-2">Nat Genet 51, 414–430 (2019)</a>.</p>
-<p>Summary statistics</p>
-<ol type="1">
-<li><a href="https://www.dropbox.com/s/2s6g8b0y14h19l7/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz?dl=0">Late-onset Alzheimer’s disease</a></li>
-</ol>
 <div class="cell">
 <details>
-<summary>AD Manhattan Plot</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>AD_path <span class="ot">=</span> <span class="st">"resources/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz"</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>AD_ss <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(AD_path, <span class="at">comment =</span> <span class="st">"##"</span>,  <span class="at">col_types =</span> coltypes, </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">col_select =</span> <span class="fu">c</span>(DBSNP_ID, CHROM, POS, REF, ALT, AF, BETA, SE, Z, P, N, TRAIT))</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter on p &lt; 0.5 to reduce compute</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggman</span>(<span class="fu">filter</span>(AD_ss, P <span class="sc">&lt;</span> <span class="fl">0.05</span> <span class="sc">&amp;</span> P <span class="sc">&gt;</span> <span class="fl">1e-100</span>), <span class="at">snp =</span> <span class="st">"DBSNP_ID"</span>, <span class="at">bp =</span> <span class="st">"POS"</span>, <span class="at">chrom =</span> <span class="st">"CHROM"</span>, <span class="at">pvalue =</span> <span class="st">"P"</span>, <span class="at">relative.positions =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> </span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<summary>LDSC</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>ldsc.covstruct <span class="ot">&lt;-</span> GenomicSEM<span class="sc">::</span><span class="fu">ldsc</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">traits =</span> <span class="fu">c</span>(<span class="st">"Willer2013ldl.sumstats.gz"</span>, <span class="st">"Graham2021ldl.sumstats.gz"</span>, <span class="st">"BellenguezAD.sumstats.gz"</span>, <span class="st">"KunkleAD.sumstats.gz"</span>),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">trait.names =</span> <span class="fu">c</span>(<span class="st">"Willer2013ldl"</span>, <span class="st">"Graham2021ldl"</span>, <span class="st">"BellenguezAD"</span>, <span class="st">"KunkleAD"</span>), </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">sample.prev =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0.18</span>, <span class="fl">0.37</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">population.prev =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0.31</span>, <span class="fl">0.31</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">ld =</span> ld_path, </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">wld =</span> ld_path,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>     <span class="at">stand =</span> <span class="cn">TRUE</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>     )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output-display">
-<p><img src="phenotypes_files/figure-html/AD_manhattan_plot-1.png" class="img-fluid" width="672"></p>
 </div>
+<div class="cell">
+<details>
+<summary>HDL</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>hdl.covstruct <span class="ot">&lt;-</span> GenomicSEM<span class="sc">::</span><span class="fu">hdl</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>     <span class="at">traits =</span> <span class="fu">c</span>(<span class="st">"Willer2013ldl.sumstats.gz"</span>, <span class="st">"Graham2021ldl.sumstats.gz"</span>, <span class="st">"BellenguezAD.sumstats.gz"</span>, <span class="st">"KunkleAD.sumstats.gz"</span>),</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">trait.names =</span> <span class="fu">c</span>(<span class="st">"Willer2013ldl"</span>, <span class="st">"Graham2021ldl"</span>, <span class="st">"BellenguezAD"</span>, <span class="st">"KunkleAD"</span>), </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">sample.prev =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0.18</span>, <span class="fl">0.37</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">population.prev =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">0.31</span>, <span class="fl">0.31</span>),</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">LD.path=</span><span class="st">"resources/UKB_imputed_hapmap2_SVD_eigen99_extraction/"</span>, </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>     <span class="at">method =</span> <span class="st">"piecewise"</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>     )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
+
+
 </section>
-<section id="sumstat-standardization" class="level2">
-<h2 class="anchored" data-anchor-id="sumstat-standardization">SumStat Standardization</h2>
-<p>GWAS summary statistics were standardized using a Snakemake Workflow that (1) aligns effect alleles to the alternate allele on the forward strand of the human genome reference build and normalizes indels, (2) annotates variants with marker names using chromosome:position:ref:alt, 1000 Genomes rsIDs (phase III), and database-single-nucleotide polymorphism (dbSNP) rsIDs (b151) (3) where allele frequencies are missing, annotates allele frequencies using non-Finnish Europeans from gnomAD (version 2.1), and (4) convert summary statistics to VCF and TSV ﬁles.</p>
-<p>Andrews, S. J. et al.&nbsp;Causal Associations Between Modifiable Risk Factors and the Alzheimer’s Phenome. <a href="https://dx.doi.org/10.1002/ana.25918">Ann Neurol 89, 54–65 (2021)</a>.</p>
-
-
 </section>
 
 </main> <!-- /main -->
@@ -602,13 +593,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../scripts/intro.html" class="pagination-link">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Introduction</span>
+      <a href="../scripts/other_methods.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Other Methods</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../scripts/sumstats.html" class="pagination-link">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Standardizing and harmonizing GWAS SumStats</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../scripts/references.html" class="pagination-link">
+        <span class="nav-page-text">References</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

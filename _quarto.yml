@@ -23,6 +23,9 @@ book:
         - scripts/radial_mr.qmd
         - scripts/mvmr.qmd
         - scripts/lhc_mr.qmd
+    - part: scripts/other_methods.qmd
+      chapters:
+        - scripts/genetic_correlations.qmd
     - scripts/references.qmd
 
   
