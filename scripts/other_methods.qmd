@@ -1,0 +1,2 @@
+# Other Methods
+Mendelian randomization analyses can be complemented by other statistical genetic analyses.

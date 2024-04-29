@@ -1,0 +1,147 @@
+---
+format: html
+editor: source
+editor_options: 
+  chunk_output_type: console
+execute: 
+  freeze: auto
+project:
+  execute-dir: project
+---
+
+# Genetic Correlations
+
+```{r}
+#| label: packages
+#| code-fold: true
+#| code-summary: Load R Packages
+#| warning: false
+#| error: false
+#| message: false
+
+library(tidyverse)    # Data wrangling 
+library(GenomicSEM)  
+
+```
+
+## Methods 
+### Tools & Publications 
+R, [GenomicSEM](https://rpubs.com/MichelNivard/640145), [LDSC](https://github.com/bulik/ldsc), [HDL](https://github.com/zhenin/HDL)
+
+- Bulik-Sullivan, B. et al. An atlas of genetic correlations across human diseases and traits. [Nat Genet 47, 1236–1241 (2015)](https://www.nature.com/articles/ng.3406).
+- Ning, Z., Pawitan, Y. & Shen, X. High-definition likelihood inference of genetic correlations across human complex traits. [Nat Genet 52, 859–864 (2020)](https://pubmed.ncbi.nlm.nih.gov/32601477/).
+
+Genetic correlation (rg) refers to the degree to which the genetic determinants of two traits overlap - the proportion of variance that two traits share due to genetic causes. A positive genetic correlation between two traits implies that the same genetic variants are influencing both traits in the same direction. Conversely, a negative genetic correlation implies that the genetic variants influencing one trait are having the opposite effect on the other trait. 
+
+**LDSC:** Linkage disequilibrium score regression (LDSC) leverages linkage disequilibrium (LD), the non-random association of alleles at different loci, to estimate genetic correlations between two traits. This method operates on the premise that single nucleotide polymorphisms (SNPs) with a higher count of LD partners (thus having a higher LD score) are typically more associated with a trait due to polygenicity, a condition where numerous genetic variants each exert a minor effect.
+
+
+**HDL:** High-definition likelihood (HDL) provides genetic correlation estimates that have higher accuracy and precision compared to LDSC. HDL achives this by using a full likelihood-based method that leverages LD information across the whole genome, where as LDSC only use partial information. 
+  
+
+```{r}
+#| label: Munge
+#| code-fold: true
+#| code-summary: Munge GWAS SumStats
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+
+## Summary statistics 
+Willer2013ldl = "resources/Willer2013ldl.chrall.CPRA_b37.tsv.gz"
+Graham2021ldl = "resources/Graham2021ldl.chrall.CPRA_b37.tsv.gz"
+KunkleAD = "resources/Kunkle2019load_stage123.chrall.CPRA_b37.tsv.gz"
+BellenguezAD = "resources/Bellenguez2022load.chrall.CPRA_b37.tsv.gz"
+
+## LD Structure 
+ld_path = "resources/eur_w_ld_chr/"
+
+## HAPMAP3 SNPs
+hm3_path = "resources/w_hm3.snplist"
+
+
+GenomicSEM::munge(
+  files = c(Willer2013ldl, Graham2021ldl, KunkleAD, BellenguezAD), 
+  hm3 = hm3_path, 
+  trait.names = c("Willer2013ldl", "Graham2021ldl", "KunkleAD", "BellenguezAD"), 
+  maf.filter = 0.05, 
+  column.names = list(
+    SNP='DBSNP_ID', 
+    MAF='AF', 
+    A1='ALT',
+    A2='REF', 
+    effect='BETA', 
+    N = "N"
+  ), 
+  overwrite=FALSE
+)
+
+```
+
+
+```{r}
+#| label: LDSC
+#| code-fold: true
+#| code-summary: LDSC
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+
+ldsc.covstruct <- GenomicSEM::ldsc(
+     traits = c("Willer2013ldl.sumstats.gz", "Graham2021ldl.sumstats.gz", "BellenguezAD.sumstats.gz", "KunkleAD.sumstats.gz"),
+     trait.names = c("Willer2013ldl", "Graham2021ldl", "BellenguezAD", "KunkleAD"), 
+     sample.prev = c(NA, NA, 0.18, 0.37),
+     population.prev = c(NA, NA, 0.31, 0.31),
+     ld = ld_path, 
+     wld = ld_path,
+     stand = TRUE
+     )
+
+```
+
+
+```{r}
+#| label: HDL
+#| code-fold: true
+#| code-summary: HDL
+#| warning: false
+#| error: false
+#| message: false
+#| eval: false
+
+hdl.covstruct <- GenomicSEM::hdl(
+     traits = c("Willer2013ldl.sumstats.gz", "Graham2021ldl.sumstats.gz", "BellenguezAD.sumstats.gz", "KunkleAD.sumstats.gz"),
+     trait.names = c("Willer2013ldl", "Graham2021ldl", "BellenguezAD", "KunkleAD"), 
+     sample.prev = c(NA, NA, 0.18, 0.37),
+     population.prev = c(NA, NA, 0.31, 0.31),
+     LD.path="resources/UKB_imputed_hapmap2_SVD_eigen99_extraction/", 
+     method = "piecewise"
+     )
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
